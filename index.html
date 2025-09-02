@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Scrollama: Sticky Overlay Example</title>
+  <title>Prototipo 1 Desmond</title>
   <meta name="description" content="Prototipo 1 Desmond" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
@@ -23,7 +23,7 @@
       padding: 0;
       /*max-width: 70rem;*/
       margin: 0 auto;
-      width:100%;
+      width: 100%;
     }
 
     .sticky-thing {
@@ -38,9 +38,9 @@
       display: flex;
       align-items: center;
       justify-content: center;
-              background-repeat: no-repeat;
-  background-size: contain; 
-  background-position: center;
+      background-repeat: no-repeat;
+      background-size: contain;
+      background-position: center;
     }
 
     .sticky-thing p {
@@ -105,7 +105,7 @@
       transform: translateY(100px);
     }
 
-    #outro{
+    #outro {
       top: 0;
       width: 100%;
       height: 100vh;
@@ -119,12 +119,13 @@
       bottom: 10%;
       transform: translateX(-50%);
       width: 600px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
       border-radius: 12px;
       background: #222;
     }
   </style>
 </head>
+
 <body>
   <main>
     <section id="scrolly">
@@ -134,8 +135,7 @@
         <div>
           <p id="sticky-text">0</p>
         </div>
-        <img id="sticky-img-2" class="sticky-img" src="/images/foto.jpeg"
-          style="height: 300px; margin-left: 1rem;">
+        <img id="sticky-img-2" class="sticky-img" src="/images/foto.jpeg" style="height: 300px; margin-left: 1rem;">
         <img id="scroll-frame" src="" alt="Frame animado">
         <img id="sticky-img-3" class="sticky-img" src="/images/Captura de tela 2025-08-14 212639.png"
           style="height: 300px; margin-right: 1rem;">
@@ -145,31 +145,33 @@
           <p>Você conhece Desmond Morris?</p>
         </div>
         <div class="step" id="step-2" data-step="2" data-image="">
-          <p> Nascido em 24 de janeiro de 1928, Desmond Morris é um zoólogo britânico e pintor surrealista que se notabilizou por analisar o comportamento humano sob uma perspetiva zoológica, ou seja, da mesma forma que descreveria os outros animais. Foi
-curador da coleção de mamíferos do Jardim Zoológico de Londres (1960-1967) e é autor de
-diversos bestsellers, entre eles, a obra O Macaco Nu (1967)</p>
+          <p> Nascido em 24 de janeiro de 1928, Desmond Morris é um zoólogo britânico e pintor surrealista que se
+            notabilizou por analisar o comportamento humano sob uma perspetiva zoológica, ou seja, da mesma forma que
+            descreveria os outros animais. Foi
+            curador da coleção de mamíferos do Jardim Zoológico de Londres (1960-1967) e é autor de
+            diversos bestsellers, entre eles, a obra O Macaco Nu (1967)</p>
         </div>
 
         <div class="step" data-step="3">
           <p>Na qualidade de apresentador do programa Zoo Time, transmitido no final dos anos 50 e
-durante a década de 60, numa parceria entre a Granada TV e a Sociedade de Zoologia de
-Londres, organizou diversos concursos. Estas iniciativas tiveram como objetivo identificar os
-animais preferidos dos jovens britânicos e os menos apreciados, para, com base nesta
-informação, interpretar as suas reações perante os animais.</p>
+            durante a década de 60, numa parceria entre a Granada TV e a Sociedade de Zoologia de
+            Londres, organizou diversos concursos. Estas iniciativas tiveram como objetivo identificar os
+            animais preferidos dos jovens britânicos e os menos apreciados, para, com base nesta
+            informação, interpretar as suas reações perante os animais.</p>
         </div>
         <div class="step" data-step="5">
           <p> Para participar, era necessário preencher um formulário e enviar pelo correio.</p>
         </div>
         <div class="step" data-step="6">
           <p> Em 2014, doou o seu arquivo científico ao Museu de História Natural e da Ciência da
-Universidade do Porto, que agora relança o concurso originalmente realizado em 1961, e
-inspirado no seu trabalho de investigação. Agora chegou sua vez de responder:</p>
+            Universidade do Porto, que agora relança o concurso originalmente realizado em 1961, e
+            inspirado no seu trabalho de investigação. Agora chegou sua vez de responder:</p>
         </div>
         <div class="step" data-step="7">
           <p>Qual é o teu animal preferido? Qual é o animal que gostas menos? Porquê?</p>
         </div>
         <div class="step" data-step="8">
-          <p>Mas decidimos fazer isso de uma forma diferente. Abaixo, tem uma pilha de cartas mostrando alguns animais.
+          <p>[Daqui em diante não estava no texto, mas acho importnante ter algo linkando com a interface de votos] Mas decidimos fazer isso de uma forma diferente. Abaixo, tem uma pilha de cartas mostrando alguns animais.
           </p>
         </div>
         <div class="step" data-step="9">
@@ -183,13 +185,9 @@ inspirado no seu trabalho de investigação. Agora chegou sua vez de responder:<
     </section>
 
     <section id="outro">
-        <iframe 
-  src="https://likes-and-dislikes-voting.netlify.app/" 
-  width="100%" 
-  height="600" 
-  style="border:none; margin-top:2rem;"
-  title="Likes and Dislikes Voting">
-</iframe>
+      <iframe src="https://likes-and-dislikes-voting.netlify.app/" width="100%" height="600"
+        style="border:none; margin-top:2rem;" title="Likes and Dislikes Voting">
+      </iframe>
     </section>
   </main>
 
@@ -221,7 +219,7 @@ inspirado no seu trabalho de investigação. Agora chegou sua vez de responder:<
         frase.classList.add('small-bottom');
         frameImg.style.display = "block";
         /*frase.style.color = "#2E227C"*/
-        stickyThing.style.backgroundImage = "url('images/Untitled Design.png')" ;
+        stickyThing.style.backgroundImage = "url('images/Untitled Design.png')";
       } else {
         frase.classList.remove('small-bottom');
         frameImg.style.display = "none";
@@ -282,4 +280,5 @@ inspirado no seu trabalho de investigação. Agora chegou sua vez de responder:<
     init();
   </script>
 </body>
+
 </html>
