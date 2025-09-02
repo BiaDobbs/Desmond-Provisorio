@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Scrollama: Sticky Overlay Example</title>
+  <meta name="description" content="Scrollama: Sticky Overlay Example" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    main {
+      background-color: #1A0D72;
+      padding-bottom: 100vh;
+    }
+
+    #scrolly {
+      position: relative;
+    }
+
+    article {
+      position: relative;
+      padding: 0;
+      /*max-width: 70rem;*/
+      margin: 0 auto;
+      width:100%;
+    }
+
+    .sticky-thing {
+      position: -webkit-sticky;
+      position: sticky;
+      left: 0;
+      width: 100%;
+      margin: 0;
+      z-index: 0;
+      top: 10vh;
+      height: 80vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+              background-repeat: no-repeat;
+  background-size: contain; 
+  background-position: center;
+    }
+
+    .sticky-thing p {
+      font-size: 8rem;
+      font-weight: 900;
+      color: #F8F4E8;
+    }
+
+    .sticky-thing p.small-bottom {
+      font-size: 2.5rem;
+      font-weight: 700;
+      position: absolute;
+      left: 50%;
+      bottom: -5%;
+      transform: translateX(-50%);
+      margin: 0;
+      text-align: center;
+      width: 80vw;
+      line-height: 1.2;
+    }
+
+    .step {
+      margin: 0 auto 20rem auto;
+      color: #2E227C;
+      background-color: rgba(0, 0, 0, 0.015);
+    }
+
+    .step:last-child {
+      margin-bottom: 100px;
+    }
+
+    .step.is-active p {
+      color: #F8F4E8;
+    }
+
+    .step p {
+      text-align: center;
+      padding: 1rem;
+      font-size: 1.5rem;
+    }
+
+    .sticky-img {
+      transition: transform 0.7s, opacity 0.7s;
+      opacity: 0;
+      position: absolute;
+    }
+
+    .sticky-img.in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    #sticky-img-1 {
+      top: 0;
+      left: 10%;
+      transform: translateY(-100px);
+    }
+
+    #sticky-img-2 {
+      bottom: 0;
+      right: 10%;
+      transform: translateY(100px);
+    }
+
+    #outro{
+      top: 0;
+      width: 100%;
+      height: 100vh;
+    }
+
+    /* Frame image styles */
+    #scroll-frame {
+      display: none;
+      position: absolute;
+      left: 50%;
+      bottom: 10%;
+      transform: translateX(-50%);
+      width: 600px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      border-radius: 12px;
+      background: #222;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section id="scrolly">
+      <div class="sticky-thing">
+        <img id="sticky-img-1" class="sticky-img" src="/images/Captura de tela 2025-08-14 212639.png"
+          style="height: 300px; margin-right: 1rem;">
+        <div>
+          <p id="sticky-text">0</p>
+        </div>
+        <img id="sticky-img-2" class="sticky-img" src="/images/foto.jpeg"
+          style="height: 300px; margin-left: 1rem;">
+        <img id="scroll-frame" src="" alt="Frame animado">
+        <img id="sticky-img-3" class="sticky-img" src="/images/Captura de tela 2025-08-14 212639.png"
+          style="height: 300px; margin-right: 1rem;">
+      </div>
+      <article>
+        <div class="step" id="step-1" data-step="1" data-image="">
+          <p>Você conhece Desmond Morris?</p>
+        </div>
+        <div class="step" id="step-2" data-step="2" data-image="">
+          <p> Nascido em 24 de janeiro de 1928, Desmond Morris é um zoólogo britânico e pintor surrealista que se notabilizou por analisar o comportamento humano sob uma perspetiva zoológica, ou seja, da mesma forma que descreveria os outros animais. Foi
+curador da coleção de mamíferos do Jardim Zoológico de Londres (1960-1967) e é autor de
+diversos bestsellers, entre eles, a obra O Macaco Nu (1967)</p>
+        </div>
+
+        <div class="step" data-step="3">
+          <p>Na qualidade de apresentador do programa Zoo Time, transmitido no final dos anos 50 e
+durante a década de 60, numa parceria entre a Granada TV e a Sociedade de Zoologia de
+Londres, organizou diversos concursos. Estas iniciativas tiveram como objetivo identificar os
+animais preferidos dos jovens britânicos e os menos apreciados, para, com base nesta
+informação, interpretar as suas reações perante os animais.</p>
+        </div>
+        <div class="step" data-step="5">
+          <p> Para participar, era necessário preencher um formulário e enviar pelo correio.</p>
+        </div>
+        <div class="step" data-step="6">
+          <p> Em 2014, doou o seu arquivo científico ao Museu de História Natural e da Ciência da
+Universidade do Porto, que agora relança o concurso originalmente realizado em 1961, e
+inspirado no seu trabalho de investigação. Agora chegou sua vez de responder:</p>
+        </div>
+        <div class="step" data-step="7">
+          <p>Qual é o teu animal preferido? Qual é o animal que gostas menos? Porquê?</p>
+        </div>
+        <div class="step" data-step="8">
+          <p>Mas decidimos fazer isso de uma forma diferente. Abaixo, tem uma pilha de cartas mostrando alguns animais.
+          </p>
+        </div>
+        <div class="step" data-step="9">
+          <p></p>
+        </div>
+        <div class="step" data-step="10">
+          <p>Antes de nos dizer qual é o seu favorito de sempre, pode apontar de quais desses aqui gosta e quais não
+            gosta? É fácil, só jogar abaixo!</p>
+        </div>
+      </article>
+    </section>
+
+    <section id="outro">
+        <iframe 
+  src="https://likes-and-dislikes-voting.netlify.app/" 
+  width="100%" 
+  height="600" 
+  style="border:none; margin-top:2rem;"
+  title="Likes and Dislikes Voting">
+</iframe>
+    </section>
+  </main>
+
+  <script src="https://unpkg.com/intersection-observer@0.5.1/intersection-observer.js"></script>
+  <script src="https://unpkg.com/scrollama"></script>
+  <script>
+    var main = document.querySelector("main");
+    var scrolly = main.querySelector("#scrolly");
+    var sticky = scrolly.querySelector(".sticky-thing");
+    var article = scrolly.querySelector("article");
+    var steps = article.querySelectorAll(".step");
+
+    var scroller = scrollama();
+
+    function handleStepEnter(response) {
+      var el = response.element;
+      var frase = sticky.querySelector("p");
+      var frameImg = document.getElementById('scroll-frame');
+      var stickyThing = document.querySelector('.sticky-thing');
+
+      steps.forEach(step => step.classList.remove('is-active'));
+      el.classList.add('is-active');
+
+      frase.innerText = el.dataset.step;
+
+      // Step 2: mostra frame animado e frase especial
+      if (el.dataset.step == "2") {
+        frase.innerText = "Um dos 100 livros mais vendidos de sempre!";
+        frase.classList.add('small-bottom');
+        frameImg.style.display = "block";
+        /*frase.style.color = "#2E227C"*/
+        stickyThing.style.backgroundImage = "url('images/Untitled Design.png')" ;
+      } else {
+        frase.classList.remove('small-bottom');
+        frameImg.style.display = "none";
+        stickyThing.style.backgroundImage = "";
+      }
+    }
+
+    // Sincroniza frame com scroll no step 2
+    function handleStepProgress(response) {
+      if (response.element.dataset.step === "2") {
+        const frameImg = document.getElementById('scroll-frame');
+        const totalFrames = 100; // ajuste para o número de imagens que você tem
+        const frame = Math.round(response.progress * totalFrames);
+        frameImg.src = `/frames/frame_${String(frame).padStart(3, '0')}.jpg`;
+      }
+    }
+
+    function init() {
+      scroller
+        .setup({
+          step: "#scrolly article .step",
+          offset: 0.60,
+          debug: true
+        })
+        .onStepEnter(handleStepEnter)
+        .onStepProgress(handleStepProgress);
+
+      window.addEventListener("resize", scroller.resize);
+    }
+
+    // animação das imagens sticky do step 1
+    function animateStickyImages() {
+      const step1 = document.getElementById('step-1');
+      const img1 = document.getElementById('sticky-img-1');
+      const img2 = document.getElementById('sticky-img-2');
+
+      const rect = step1.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+
+      if (rect.top < windowHeight && rect.bottom > 0) {
+        const progress = Math.min(Math.max((windowHeight - rect.top) / (rect.height + windowHeight), 0), 1);
+
+        img1.style.opacity = 1;
+        img2.style.opacity = 1;
+        img1.style.transform = `translateY(${-100 + 1000 * progress}px)`;
+        img2.style.transform = `translateY(${100 - 1000 * progress}px)`;
+      } else {
+        img1.style.opacity = 0;
+        img2.style.opacity = 0;
+        img1.style.transform = `translateY(-100px)`;
+        img2.style.transform = `translateY(100px)`;
+      }
+    }
+
+    window.addEventListener('scroll', animateStickyImages);
+    window.addEventListener('resize', animateStickyImages);
+
+    init();
+  </script>
+</body>
+</html>
