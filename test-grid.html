@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Prototipo 1 Desmond</title>
+    <meta name="description" content="Prototipo 1 Desmond" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.5.3/tabletop.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+    <link rel="stylesheet" href="style.css" />
+    <script src="sketch.js"></script>
+
+    <style>
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 2rem;
+        }
+
+        main {
+            background-color: #1a0d72;
+            padding-bottom: 100vh;
+        }
+
+        #scrolly {
+            position: relative;
+        }
+
+        article {
+            position: relative;
+            padding: 0;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .sticky-thing {
+            position: -webkit-sticky;
+            position: sticky;
+            left: 0;
+            width: 100%;
+            margin: 0;
+            z-index: 1;
+            top: 10vh;
+            height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-repeat: no-repeat;
+            background-size: contain;
+            background-position: center;
+        }
+
+        .sticky-thing p {
+            font-size: 8rem;
+            font-weight: 900;
+            color: #f8f4e8;
+            z-index: 15;
+            position: relative;
+            pointer-events: none;
+            /* CHAVE: permite cliques através */
+        }
+
+        .sticky-thing p.small-bottom {
+            font-size: 2.5rem;
+            font-weight: 700;
+            position: absolute;
+            left: 50%;
+            bottom: -5%;
+            transform: translateX(-50%);
+            margin: 0;
+            text-align: center;
+            width: 80vw;
+            line-height: 1.2;
+            z-index: 15;
+            pointer-events: none;
+            /* CHAVE: permite cliques através */
+        }
+
+        .step {
+            margin: 0 auto 20rem auto;
+            max-width: 600px;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.01);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 20;
+            /* ALTO - para ficar acima do grid */
+        }
+
+        .step:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+            transform: translateY(-5px);
+        }
+
+        .step:last-child {
+            margin-bottom: 100px;
+        }
+
+        .step.is-active {
+            background: rgba(248, 244, 232, 0.15);
+            border-color: rgba(248, 244, 232, 0.3);
+            box-shadow: 0 0 40px rgba(248, 244, 232, 0.2), 0 12px 40px rgba(0, 0, 0, 0.4);
+            transform: scale(1.02);
+        }
+
+        .step.is-active p {
+            color: #f8f4e8;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .step p {
+            text-align: center;
+            padding: 0;
+            font-size: 1.5rem;
+            color: rgba(46, 34, 124, 0.1);
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .step::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            border-radius: 20px 20px 0 0;
+        }
+
+        .sticky-img {
+            transition: transform 0.7s, opacity 0.7s;
+            opacity: 0;
+            position: absolute;
+            pointer-events: none;
+            /* CHAVE: permite cliques através */
+        }
+
+        .sticky-img.in {
+            opacity: 1;
+            transform: translateY(0) !important;
+        }
+
+        #sticky-img-1 {
+            top: 0;
+            left: 10%;
+            transform: translateY(-100px);
+        }
+
+        #sticky-img-2 {
+            bottom: 0;
+            right: 10%;
+            transform: translateY(100px);
+        }
+
+        #outro {
+            top: 0;
+            width: 100%;
+            height: 100vh;
+        }
+
+        /* Frame image styles */
+        #scroll-frame {
+            display: none;
+            position: absolute;
+            left: 50%;
+            bottom: 10%;
+            transform: translateX(-50%);
+            width: 600px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            background: #222;
+            pointer-events: none;
+            
+        }
+
+        .step:nth-child(3) {
+            margin-bottom: 35rem;
+        }
+
+        /* GRID DE CAPAS - FORMATO VERTICAL CORRETO */
+        #image-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 15px;
+            padding: 30px;
+            box-sizing: border-box;
+            z-index: 5;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        #image-grid.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .grid-item {
+            background: none;
+            border: none;
+            border-radius: 0;
+            padding: 0;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #f8f4e8;
+            position: relative;
+            z-index: 6;
+            overflow: hidden;
+            aspect-ratio: 2/3;
+        }
+
+        .grid-item:hover {
+            background: none !important;
+            border: none !important;
+            transform: scale(1.05) !important;
+            z-index: 12 !important;
+        }
+
+        .book-cover {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 6px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7);
+            transition: all 0.3s ease;
+            pointer-events: none;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .grid-item:hover .book-cover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.9);
+        }
+
+        .book-info {
+            display: none;
+        }
+
+        .book-title {
+            display: none;
+        }
+
+        .book-year {
+            display: none;
+        }
+
+        /* TOOLTIP MELHORADO PARA EDIÇÕES */
+        .tooltip {
+            position: fixed;
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid rgba(248, 244, 232, 0.4);
+            border-radius: 12px;
+            padding: 20px;
+            width: 320px;
+            max-width: 90vw;
+            color: #f8f4e8;
+            font-size: 0.9rem;
+            z-index: 9999;
+            /* ALTÍSSIMO - acima das steps (z-index 20) */
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+            pointer-events: none;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+        }
+
+        .tooltip.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .tooltip h4 {
+            margin: 0 0 12px 0;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #f8f4e8;
+            border-bottom: 1px solid rgba(248, 244, 232, 0.3);
+            padding-bottom: 8px;
+        }
+
+        .tooltip .edition-details {
+            margin: 12px 0;
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 8px 12px;
+            font-size: 0.85rem;
+        }
+
+        .tooltip .detail-label {
+            font-weight: 600;
+            color: rgba(248, 244, 232, 0.9);
+        }
+
+        .tooltip .detail-value {
+            color: #f8f4e8;
+        }
+
+        .tooltip .description {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(248, 244, 232, 0.2);
+            color: rgba(248, 244, 232, 0.9);
+            line-height: 1.4;
+            font-size: 0.85rem;
+            font-style: italic;
+        }
+
+        /* Language selector styles */
+        #lang-selector {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+
+        #lang-selector button {
+            background-color: #f8f4e8;
+            color: #1a0d72;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        #lang-selector button:hover {
+            background-color: #e0d7b9;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .step {
+                margin: 0 1rem 15rem 1rem;
+                padding: 1.5rem;
+                border-radius: 15px;
+            }
+
+            .step p {
+                font-size: 1.3rem;
+            }
+
+            #image-grid {
+                grid-template-columns: repeat(4, 1fr);
+                grid-template-rows: repeat(4, 1fr);
+                padding: 20px;
+                gap: 12px;
+            }
+
+            .book-title {
+                font-size: 0.8rem;
+            }
+
+            .book-year {
+                font-size: 0.7rem;
+            }
+
+            .tooltip {
+                width: 90%;
+                max-width: none;
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <section id="scrolly">
+            <div class="sticky-thing">
+                <img id="sticky-img-1" class="sticky-img" src="/images/Captura de tela 2025-08-14 212639.png"
+                    style="height: 300px; margin-right: 1rem;">
+                <div>
+                    <p id="sticky-text">0</p>
+                </div>
+                <img id="sticky-img-2" class="sticky-img" src="/images/foto.jpeg"
+                    style="height: 300px; margin-left: 1rem;">
+                <img id="scroll-frame" src="">
+                <img id="sticky-img-3" class="sticky-img" src="/images/Captura de tela 2025-08-14 212639.png"
+                    style="height: 300px; margin-right: 1rem;">
+
+                <!-- ÚNICO GRID - DENTRO DA STICKY-THING -->
+                <!-- GRID DE CAPAS DO LIVRO -->
+                <div id="image-grid">
+                    <!-- PRIMEIRA LINHA (8 edições) -->
+                    <div class="grid-item" data-title="The Naked Ape - Edição Original Inglesa" data-country="Reino Unido" data-language="Inglês" data-year="1967" data-publisher="Jonathan Cape" data-desc="Primeira edição original que revolucionou a literatura científica popular e vendeu milhões de cópias mundialmente.">
+                        <img src="/images/capas/Capa1.jpg" alt="Capa original inglesa" class="book-cover">
+                    </div>
+                    
+                    <div class="grid-item" data-title="O Macaco Nu - Edição Brasileira Record" data-country="Brasil" data-language="Português" data-year="1973" data-publisher="Record" data-desc="Primeira tradução brasileira que popularizou Morris no país e influenciou gerações de leitores.">
+                        <img src="/images/capas/Capa2.jpg" alt="Capa brasileira" class="book-cover">
+                    </div>
+                    
+                    <div class="grid-item" data-title="Le Singe Nu - Edição Francesa" data-country="França" data-language="Francês" data-year="1968" data-publisher="Grasset" data-desc="Edição francesa que conquistou o público europeu com design elegante e tradução refinada.">
+                        <img src="/images/capas/Capa3.jpg" alt="Capa francesa" class="book-cover">
+                    </div>
+                    
+                    <div class="grid-item" data-title="Der Nackte Affe - Edição Alemã" data-country="Alemanha" data-language="Alemão" data-year="1968" data-publisher="Droemer Knaur" data-desc="Edição alemã com design inovador e tipografia moderna que marcou o mercado europeu.">
+                        <img src="/images/capas/Capa4.jpg" alt="Capa alemã" class="book-cover">
+                    </div>
+                    
+                    <div class="grid-item" data-title="El Mono Desnudo - Edição Espanhola" data-country="Espanha" data-language="Espanhol" data-year="1970" data-publisher="Plaza & Janés" data-desc="Edição espanhola que marcou época com capa artística e se tornou bestseller na Península Ibérica.">
+                        <img src="/images/capas/Capa5.jpg" alt="Capa espanhola" class="book-cover">
+                    </div>
+                    
+                    <div class="grid-item" data-title="裸のサル - Edição Japonesa" data-country="Japão" data-language="Japonês" data-year="1971" data-publisher="Hayakawa Publishing" data-desc="Edição japonesa com design único oriental e tipografia requintada que conquistou o mercado asiático.">
+                        <img src="/images/capas/Capa6.jpg" alt="Capa japonesa" class="book-cover">
+                    </div>
+                    
+                    <div class="grid-item" data-title="La Scimmia Nuda - Edição Italiana" data-country="Itália" data-language="Italiano" data-year="1969" data-publisher="Bompiani" data-desc="Edição italiana com capa artística sofisticada que reflete o design italiano dos anos 60.">
+                        <img src="/images/capas/Capa7.jpg" alt="Capa italiana" class="book-cover">
+                    </div>
+                    
+                    <div class="grid-item" data-title="De Naakte Aap - Edição Holandesa" data-country="Holanda" data-language="Holandês" data-year="1968" data-publisher="Contact" data-desc="Edição holandesa com abordagem progressista e design minimalista típico do país.">
+                        <img src="/images/capas/Capa8.jpg" alt="Capa holandesa" class="book-cover">
+                    </div>
+                    
+                    <!-- SEGUNDA LINHA (8 edições) -->
+                    <div class="grid-item" data-title="O Macaco Nu - Edição Portuguesa" data-country="Portugal" data-language="Português" data-year="1975" data-publisher="Europa-América" data-desc="Edição portuguesa que chegou após a Revolução dos Cravos, simbolizando a abertura cultural do país.">
+                        <img src="/images/capas/Capa9.jpg" alt="Capa portuguesa" class="book-cover">
+                    </div>
+                    
+                    <div class="grid-item" data-title="The Naked Ape - Edição Americana" data-country="Estados Unidos" data-language="Inglês" data-year="1967" data-publisher="McGraw-Hill" data-desc="Edição americana simultânea que conquistou o mercado norte-americano e se tornou fenômeno cultural.">
+                        <img src="/images/capas/Capa10.jpg" alt="Capa americana" class="book-cover">
+                    </div>
+                    
+                    <div class="grid-item" data-title="Den Nakna Apan - Edição Sueca" data-country="Suécia" data-language="Sueco" data-year="1969" data-publisher="Wahlström & Widstrand" data-desc="Edição sueca com design escandinavo minimalista e elegante, típico da estética nórdica.">
+                        <img src="/images/capas/Capa11.jpg" alt="Capa sueca" class="book-cover">
+                    </div>
+                    
+                    <div class="grid-item" data-title="The Naked Ape - Edição Comemorativa" data-country="Reino Unido" data-language="Inglês" data-year="2017" data-publisher="Vintage Books" data-desc="Reedição comemorativa dos 50 anos com nova capa moderna e prefácio atualizado do autor.">
+                        <img src="/images/capas/Capa12.jpg" alt="Capa comemorativa" class="book-cover">
+                    </div>
+                    
+                    <div class="grid-item" data-title="Голая Обезьяна - Edição Russa" data-country="Rússia" data-language="Russo" data-year="1992" data-publisher="Progress Publishers" data-desc="Primeira edição russa após a queda da URSS, introduzindo Morris ao público eslavo.">
+                        <img src="/images/capas/Capa1.jpg" alt="Capa russa" class="book-cover">
+                    </div>
+                    
+                    <div class="grid-item" data-title="L'Homme Nu - Edição Canadense" data-country="Canadá" data-language="Francês" data-year="1970" data-publisher="Éditions du Jour" data-desc="Edição franco-canadense que adaptou o texto para o público quebequense.">
+                        <img src="/images/capas/Capa2.jpg" alt="Capa canadense" class="book-cover">
+                    </div>
+                    
+                    <div class="grid-item" data-title="Den Nakne Ape - Edição Norueguesa" data-country="Noruega" data-language="Norueguês" data-year="1969" data-publisher="Gyldendal" data-desc="Edição norueguesa com design nórdico tradicional e papel de alta qualidade.">
+                        <img src="/images/capas/Capa3.jpg" alt="Capa norueguesa" class="book-cover">
+                    </div>
+                    
+                    <div class="grid-item" data-title="Çıplak Maymun - Edição Turca" data-country="Turquia" data-language="Turco" data-year="1985" data-publisher="Remzi Kitabevi" data-desc="Edição turca que chegou décadas depois, adaptada para o contexto cultural otomano.">
+                        <img src="/images/capas/Capa4.jpg" alt="Capa turca" class="book-cover">
+                    </div>
+                </div>
+
+                <!-- TOOLTIP -->
+                <div id="tooltip" class="tooltip">
+                    <h4 id="tooltip-title"></h4>
+                    <p id="tooltip-desc"></p>
+                </div>
+            </div>
+
+            <article>
+                <div class="step" id="step-1" data-step="1" data-image="">
+                    <p>Você conhece Desmond Morris?</p>
+                </div>
+                <div class="step" id="step-2" data-step="2" data-image="">
+                    <p> Nascido em 24 de janeiro de 1928, Desmond Morris é um zoólogo britânico e pintor surrealista que
+                        se
+                        notabilizou por analisar o comportamento humano sob uma perspetiva zoológica, ou seja, da mesma
+                        forma que
+                        descreveria os outros animais. </p>
+                </div>
+
+                <div class="step" data-step="3">
+                    <p>Foi curador da coleção de mamíferos do Jardim Zoológico de Londres (1960-1967) e é autor de
+                        diversos bestsellers, entre eles, a obra O Macaco Nu (1967)</p>
+                </div>
+
+                <div class="step" data-step="4">
+                    <p>Na qualidade de apresentador do programa Zoo Time, transmitido no final dos anos 50 e
+                        durante a década de 60, numa parceria entre a Granada TV e a Sociedade de Zoologia de
+                        Londres, organizou diversos concursos.</p>
+                </div>
+
+                <div class="step" data-step="5">
+                    <p> Estas iniciativas tiveram como objetivo identificar os animais preferidos dos jovens britânicos
+                        e os menos
+                        apreciados, para, com base nesta
+                        informação, interpretar as suas reações perante os animais.</p>
+                </div>
+
+                <div class="step" data-step="6">
+                    <p> Para participar, era necessário preencher um formulário e enviar pelo correio.</p>
+                </div>
+                <div class="step" data-step="7">
+                    <p> Em 2014, doou o seu arquivo científico ao Museu de História Natural e da Ciência da
+                        Universidade do Porto, que agora relança o concurso originalmente realizado em 1961, e
+                        inspirado no seu trabalho de investigação. Agora chegou sua vez de responder:</p>
+                </div>
+                <div class="step" data-step="8">
+                    <p>Qual é o teu animal preferido? Qual é o animal que gostas menos? Porquê?</p>
+                </div>
+                <div class="step" data-step="9">
+                    <p>[Daqui em diante não estava no texto, mas acho importnante ter algo linkando com a interface de
+                        votos] Mas
+                        decidimos fazer isso de uma forma diferente. Abaixo, tem uma pilha de cartas mostrando alguns
+                        animais.
+                    </p>
+                </div>
+                <div class="step" data-step="10">
+                    <p></p>
+                </div>
+                <div class="step" data-step="11">
+                    <p>Antes de nos dizer qual é o seu favorito de sempre, pode apontar de quais desses aqui gosta e
+                        quais não
+                        gosta? É fácil, só participar abaixo!</p>
+                </div>
+            </article>
+        </section>
+
+        <section id="outro">
+            <iframe src="https://likes-and-dislikes-voting.netlify.app/" width="100%" height="600"
+                style="border:none; margin-top:2rem;" title="Likes and Dislikes Voting">
+            </iframe>
+        </section>
+
+        <!-- Seletor de idioma -->
+        <div id="lang-selector">
+            <button onclick="setLanguage('pt')">Português</button>
+            <button onclick="setLanguage('en')">English</button>
+        </div>
+    </main>
+
+    <script src="https://unpkg.com/intersection-observer@0.5.1/intersection-observer.js"></script>
+    <script src="https://unpkg.com/scrollama"></script>
+    <script>
+        console.log('🚀 Versão limpa iniciada');
+
+        var main = document.querySelector("main");
+        var scrolly = main.querySelector("#scrolly");
+        var sticky = scrolly.querySelector(".sticky-thing");
+        var article = scrolly.querySelector("article");
+        var steps = article.querySelectorAll(".step");
+
+        var scroller = scrollama();
+
+        // CONFIGURAÇÃO SIMPLES DO GRID
+        function setupGrid() {
+            const items = document.querySelectorAll('#image-grid .grid-item');
+            const tooltip = document.getElementById('tooltip');
+
+            console.log('📝 Configurando', items.length, 'capas do livro');
+
+            items.forEach((item, index) => {
+                item.addEventListener('mouseenter', function (e) {
+                    console.log('🔥 HOVER DETECTADO na capa', index, this.dataset.title);
+
+                    // Cria conteúdo do tooltip com dados da edição
+                    const title = this.dataset.title;
+                    const country = this.dataset.country;
+                    const language = this.dataset.language;
+                    const year = this.dataset.year;
+                    const publisher = this.dataset.publisher;
+
+                    tooltip.innerHTML = `
+                <h4>${title}</h4>
+                <div class="edition-details">
+                    <span class="detail-label">País:</span>
+                    <span class="detail-value">${country}</span>
+                    <span class="detail-label">Idioma:</span>
+                    <span class="detail-value">${language}</span>
+                    <span class="detail-label">Ano:</span>
+                    <span class="detail-value">${year}</span>
+                    <span class="detail-label">Editora:</span>
+                    <span class="detail-value">${publisher}</span>
+                </div>
+            `;
+
+                    let left = e.clientX + 20;
+                    let top = e.clientY + 20;
+
+                    if (left + 340 > window.innerWidth) {
+                        left = e.clientX - 340;
+                    }
+                    if (top + 200 > window.innerHeight) {
+                        top = e.clientY - 200;
+                    }
+
+                    tooltip.style.left = left + 'px';
+                    tooltip.style.top = top + 'px';
+                    tooltip.classList.add('show');
+
+                    console.log('✅ Tooltip da edição ativo');
+                });
+
+                item.addEventListener('mouseleave', function () {
+                    console.log('🔥 HOVER SAIU da capa', index);
+                    tooltip.classList.remove('show');
+                });
+
+                item.addEventListener('mousemove', function (e) {
+                    if (tooltip.classList.contains('show')) {
+                        let left = e.clientX + 20;
+                        let top = e.clientY + 20;
+
+                        if (left + 340 > window.innerWidth) {
+                            left = e.clientX - 340;
+                        }
+                        if (top + 200 > window.innerHeight) {
+                            top = e.clientY - 200;
+                        }
+
+                        tooltip.style.left = left + 'px';
+                        tooltip.style.top = top + 'px';
+                    }
+                });
+
+                item.addEventListener('click', function (e) {
+                    console.log('👆 CLIQUE na capa', index, this.dataset.title);
+                    e.stopPropagation();
+                    e.preventDefault();
+                });
+            });
+
+            console.log('✅ Grid de capas configurado');
+        }
+
+        function handleStepEnter(response) {
+            var el = response.element;
+            var frase = sticky.querySelector("p");
+            var frameImg = document.getElementById('scroll-frame');
+            var stickyThing = document.querySelector('.sticky-thing');
+            var imageGrid = document.getElementById('image-grid');
+            var tooltip = document.getElementById('tooltip');
+
+            if (el.dataset.step == "1") {
+                document.getElementById('sticky-img-1').style.display = 'block';
+                document.getElementById('sticky-img-2').style.display = 'block';
+            } else {
+                document.getElementById('sticky-img-1').style.display = 'none';
+                document.getElementById('sticky-img-2').style.display = 'none';
+            }
+
+            steps.forEach(step => step.classList.remove('is-active'));
+            el.classList.add('is-active');
+
+            frase.innerText = el.dataset.step;
+
+            if (el.dataset.step == "3") {
+                // STEP 3 - ATIVA O GRID
+                frase.innerText = "Um dos 100 livros mais vendidos de sempre!";
+                frase.classList.add('small-bottom');
+                frameImg.style.display = "none";
+                stickyThing.style.backgroundImage = "";
+                imageGrid.classList.add('active');
+                console.log('🎯 Grid ativado no step 3');
+            } else {
+                // OUTROS STEPS
+                frase.classList.remove('small-bottom');
+                imageGrid.classList.remove('active');
+                tooltip.classList.remove('show');
+                frameImg.style.display = "none";
+                stickyThing.style.backgroundImage = "";
+            }
+        }
+
+        function setLanguage(lang) {
+            console.log("Idioma selecionado:", lang);
+        }
+
+        function init() {
+            scroller
+                .setup({
+                    step: "#scrolly article .step",
+                    offset: 0.5,
+                    debug: false,
+                })
+                .onStepEnter(handleStepEnter);
+
+            window.addEventListener("resize", () => {
+                scroller.resize();
+            });
+
+            // Configura grid uma única vez
+            setupGrid();
+
+            console.log('✅ App inicializada');
+        }
+
+        init();
+    </script>
+</body>
+
+</html>

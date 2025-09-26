@@ -1,0 +1,119 @@
+body {
+  padding: 0;
+  margin: 0;
+  background-color: #130d0a;
+  font-family: "Playfair Display", serif;
+  color: #fff;
+}
+
+#hero {
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+#content {
+  background-color: #130d0a;
+}
+
+.layer {
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-size: contain; /* Ensure the entire image is visible */
+  background-position: center; /* Center the image within the layer */
+  width: 100%;
+  height: 100vh;
+  position: fixed;
+  z-index: -1;
+  top: 0;
+  left: 0;
+  min-height: 100vh; /* Ensure all layers are properly aligned */
+  margin: 0; /* Reset margin for alignment */
+  overflow: hidden; /* Prevent overflow */
+}
+
+#hero-mobile {
+  display: none;
+  background: url("Family-layers_0000_Pequeno-menor.png") no-repeat center center/cover;
+  height: 100vh;
+}
+
+.first-section {
+  padding: 50px 0 20px 0;
+}
+
+.text-header {
+  font-size: 50px;
+  text-align: center;
+}
+
+h1 {
+  line-height: 120%;
+  margin-bottom: 30px;
+}
+
+p {
+  color: #ede0d5;
+  font-size: 18px;
+  line-height: 150%;
+}
+
+#hero,
+.layer {
+  min-height: 100vh;
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+.layer-bg {
+  background-image: url("Family-layers_0006_Fundo-copy.png");
+}
+
+.layer-1 {
+  background-image: url("Family-layers_0005_Voa.png");
+}
+
+.layer-2 {
+  background-image: url("Family-layers_0004_Esquerda.png");
+}
+
+.layer-3 {
+  background-image: url("Family-layers_0001_Direita.png");
+}
+
+.layer-4 {
+  background-image: url("Family-layers_0002_Meio.png");
+}
+
+.layer-5 {
+  background-image: url("Family-layers_0003_Pequeno.png");
+}
+
+.layer-6 {
+  background-image: url("Family-layers_0000_Pequeno-menor.png");
+}
+
+.layer-overlay {
+  background-image: url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/272781/ilu_overlay.png");
+}
+
+
+@media only screen and (max-width: 768px) {
+  #hero {
+    display: none;
+  }
+
+  #hero-mobile {
+    display: block;
+  }
+}
+.tutorial-link {
+  color: #fff;
+  font-size: 18px;
+  text-decoration: underline;
+}
+.tutorial-link:hover {
+  color: #ede0d5;
+}

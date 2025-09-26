@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Guia Visual: Scrollytelling com Scrollama</title>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      background: #0a0a0a;
+      color: #ffffff;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 4rem 2rem;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .header p {
+      font-size: 1.2rem;
+      opacity: 0.9;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .nav-menu {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0,0,0,0.8);
+      border-radius: 10px;
+      padding: 1rem;
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+    }
+
+    .nav-menu a {
+      display: block;
+      color: #fff;
+      text-decoration: none;
+      padding: 0.5rem;
+      border-radius: 5px;
+      transition: background 0.3s;
+      font-size: 0.9rem;
+    }
+
+    .nav-menu a:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    .example-section {
+      margin: 4rem 0;
+      position: relative;
+    }
+
+    .section-header {
+      background: #1a1a1a;
+      padding: 2rem;
+      border-left: 5px solid #667eea;
+      margin-bottom: 2rem;
+    }
+
+    .section-header h2 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      color: #667eea;
+    }
+
+    .section-header p {
+      opacity: 0.8;
+      font-size: 1.1rem;
+    }
+
+    /* Sticky Overlay Example */
+    .sticky-overlay {
+      position: relative;
+      height: 300vh;
+    }
+
+    .sticky-graphic {
+      position: sticky;
+      top: 10vh;
+      height: 80vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+      margin: 0 2rem;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .visual-element {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      opacity: 0;
+      transform: scale(0.5);
+      transition: all 0.5s ease;
+      position: absolute;
+    }
+
+    .visual-element.active {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .visual-element:nth-child(1) { background: #ff6b6b; }
+    .visual-element:nth-child(2) { background: #4ecdc4; }
+    .visual-element:nth-child(3) { background: #45b7d1; }
+    .visual-element:nth-child(4) { background: #96ceb4; }
+
+    .step {
+      margin: 15rem auto;
+      max-width: 500px;
+      padding: 2rem;
+      background: rgba(255,255,255,0.05);
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .step.is-active {
+      background: rgba(102, 126, 234, 0.2);
+      border-color: #667eea;
+      box-shadow: 0 0 30px rgba(102, 126, 234, 0.3);
+    }
+
+    .step h3 {
+      color: #667eea;
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+    }
+
+    .step p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+    }
+
+    /* Progress Animation Example */
+    .progress-demo {
+      position: relative;
+      height: 200vh;
+    }
+
+    .progress-graphic {
+      position: sticky;
+      top: 10vh;
+      height: 80vh;
+      margin: 0 2rem;
+      background: #1a1a1a;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      width: 80%;
+      height: 20px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      border-radius: 10px;
+      width: 0%;
+      transition: width 0.1s ease;
+    }
+
+    .progress-text {
+      position: absolute;
+      top: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 2rem;
+      font-weight: bold;
+      color: #667eea;
+    }
+
+    /* Phase Animation Example */
+    .phase-demo {
+      position: relative;
+      height: 300vh;
+    }
+
+    .phase-graphic {
+      position: sticky;
+      top: 10vh;
+      height: 80vh;
+      margin: 0 2rem;
+      background: radial-gradient(circle, #2c3e50, #000);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .phase-element {
+      width: 150px;
+      height: 150px;
+      background: #e74c3c;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: white;
+      font-weight: bold;
+      transform: scale(0) rotate(0deg);
+      opacity: 0;
+    }
+
+    /* Chart Animation Example */
+    .chart-demo {
+      position: relative;
+      height: 250vh;
+    }
+
+    .chart-graphic {
+      position: sticky;
+      top: 10vh;
+      height: 80vh;
+      margin: 0 2rem;
+      background: #1a1a1a;
+      border-radius: 20px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 2rem;
+      gap: 1rem;
+    }
+
+    .bar {
+      width: 60px;
+      background: linear-gradient(to top, #667eea, #764ba2);
+      border-radius: 5px 5px 0 0;
+      height: 0%;
+      transition: height 0.5s ease;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      padding-bottom: 10px;
+    }
+
+    .bar:nth-child(1) { background: linear-gradient(to top, #ff6b6b, #ff8e8e); }
+    .bar:nth-child(2) { background: linear-gradient(to top, #4ecdc4, #6ed4cc); }
+    .bar:nth-child(3) { background: linear-gradient(to top, #45b7d1, #67c3d6); }
+    .bar:nth-child(4) { background: linear-gradient(to top, #96ceb4, #a8d5bd); }
+
+    /* Debug Panel */
+    .debug-panel {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background: rgba(0,0,0,0.9);
+      color: #00ff00;
+      padding: 1rem;
+      border-radius: 10px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      border: 1px solid #00ff00;
+      min-width: 250px;
+    }
+
+    .debug-panel h4 {
+      color: #00ff00;
+      margin-bottom: 0.5rem;
+      border-bottom: 1px solid #00ff00;
+      padding-bottom: 0.5rem;
+    }
+
+    /* Sticky Side Layout */
+    .sticky-side-demo {
+      display: flex;
+      margin: 2rem;
+      gap: 2rem;
+      min-height: 120vh;
+    }
+
+    .sticky-side-graphic {
+      flex: 0 0 40%;
+      position: sticky;
+      top: 10vh;
+      height: 80vh;
+      background: #1a1a1a;
+      border-radius: 20px;
+      padding: 2rem;
+      overflow: hidden;
+    }
+
+    .sticky-side-content {
+      flex: 1;
+      padding-left: 2rem;
+    }
+
+    .sticky-side-content .step {
+      margin: 10rem auto;
+      max-width: none;
+    }
+
+    /* Metrics Cards */
+    .side-visual {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      justify-content: center;
+    }
+
+    .metric-card {
+      background: rgba(102, 126, 234, 0.1);
+      padding: 2rem;
+      border-radius: 15px;
+      text-align: center;
+      border: 2px solid rgba(102, 126, 234, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .metric-card:hover {
+      background: rgba(102, 126, 234, 0.2);
+      border-color: rgba(102, 126, 234, 0.4);
+    }
+
+    .metric-number {
+      font-size: 3rem;
+      font-weight: bold;
+      color: #667eea;
+      margin-bottom: 0.5rem;
+    }
+
+    .metric-label {
+      font-size: 1.1rem;
+      color: #ccc;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Map Layout */
+    .map-container {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 1rem;
+      height: 70%;
+    }
+
+    .map-region {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 1.2rem;
+      transition: all 0.5s ease;
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+
+    .map-region.highlighted {
+      background: rgba(102, 126, 234, 0.3);
+      border-color: #667eea;
+      transform: scale(1.05);
+      box-shadow: 0 0 30px rgba(102, 126, 234, 0.5);
+    }
+
+    .map-legend {
+      position: absolute;
+      bottom: -10%;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .legend-color {
+      width: 20px;
+      height: 20px;
+      border-radius: 3px;
+      background: rgba(102, 126, 234, 0.3);
+      border: 2px solid #667eea;
+    }
+
+    /* Timeline Layout */
+    .timeline-container {
+      position: relative;
+      padding: 2rem 0;
+      height: 100%;
+    }
+
+    .timeline-line {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateX(-50%);
+    }
+
+    .timeline-progress {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      width: 3px;
+      height: 0%;
+      background: linear-gradient(to bottom, #667eea, #764ba2);
+      transform: translateX(-50%);
+      transition: height 0.8s ease;
+    }
+
+    .timeline-point {
+      position: relative;
+      margin: 4rem 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .point-dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      transition: all 0.5s ease;
+      z-index: 2;
+    }
+
+    .timeline-point.active .point-dot {
+      background: #667eea;
+      border-color: #667eea;
+      box-shadow: 0 0 20px rgba(102, 126, 234, 0.6);
+    }
+
+    .point-label {
+      position: absolute;
+      left: calc(100% + 2rem);
+      font-weight: bold;
+      color: #667eea;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header h1 { font-size: 2rem; }
+      .nav-menu { 
+        position: relative; 
+        margin: 1rem; 
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+      .step { margin: 8rem auto; }
+      .sticky-graphic, .progress-graphic, .phase-graphic, .chart-graphic {
+        margin: 0 1rem;
+      }
+      
+      /* Sticky Side */
+      .sticky-side-demo {
+        flex-direction: column;
+        margin: 1rem;
+      }
+      
+      .sticky-side-graphic {
+        position: relative;
+        flex: none;
+        height: 50vh;
+        margin-bottom: 2rem;
+      }
+      
+      .sticky-side-content {
+        padding-left: 0;
+      }
+      
+      .sticky-side-content .step {
+        margin: 5rem auto;
+      }
+      
+      .map-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: repeat(4, 1fr);
+      }
+      
+      .point-label {
+        left: calc(100% + 1rem);
+        font-size: 0.9rem;
+      }
+    }
+
+    /* Code snippets */
+    .code-snippet {
+      background: #1e1e1e;
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin: 1rem 0;
+      border-left: 5px solid #667eea;
+      overflow-x: auto;
+    }
+
+    .code-snippet pre {
+      color: #d4d4d4;
+      font-size: 0.9rem;
+      white-space: pre-wrap;
+    }
+
+    .code-title {
+      color: #667eea;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="header">
+    <h1>🎭 Scrollytelling com Scrollama</h1>
+    <p>Guia visual interativo com exemplos práticos de narrativas visuais que respondem ao scroll</p>
+  </header>
+
+  <nav class="nav-menu">
+    <a href="#sticky-overlay">Sticky Overlay</a>
+    <a href="#progress-animation">Progress Animation</a>
+    <a href="#phase-animation">Phase Animation</a>
+    <a href="#chart-animation">Chart Animation</a>
+    <a href="#sticky-side-basic">Sticky Side - Basic</a>
+    <a href="#sticky-side-map">Sticky Side - Mapa Interativo</a>
+    <a href="#sticky-side-timeline">Sticky Side - Timeline Interativa</a>
+  </nav>
+
+  <!-- Exemplo 1: Sticky Overlay -->
+  <section id="sticky-overlay" class="example-section">
+    <div class="section-header">
+      <h2>1. Sticky Overlay Pattern</h2>
+      <p>Visual fixo com elementos que aparecem/desaparecem conforme o texto. Ideal para mostrar diferentes estados ou objetos.</p>
+    </div>
+
+    <div class="sticky-overlay">
+      <div class="sticky-graphic">
+        <div class="visual-element" data-visual="1">🎯</div>
+        <div class="visual-element" data-visual="2">🚀</div>
+        <div class="visual-element" data-visual="3">⚡</div>
+        <div class="visual-element" data-visual="4">🎨</div>
+      </div>
+
+      <div class="step" data-step="1">
+        <h3>Step 1: Foco</h3>
+        <p>Primeiro, definimos o objetivo. Como o alvo, precisamos mirar com precisão no que queremos comunicar.</p>
+      </div>
+
+      <div class="step" data-step="2">
+        <h3>Step 2: Lançamento</h3>
+        <p>Em seguida, colocamos a ideia em movimento. Como um foguete, a narrativa ganha velocidade e direção.</p>
+      </div>
+
+      <div class="step" data-step="3">
+        <h3>Step 3: Impacto</h3>
+        <p>O momento da revelação! Como um raio, a informação atinge o leitor com clareza e força.</p>
+      </div>
+
+      <div class="step" data-step="4">
+        <h3>Step 4: Criação</h3>
+        <p>Finalmente, combinamos tudo em uma experiência visual única, pintando a história completa.</p>
+      </div>
+    </div>
+
+    <div class="code-snippet">
+      <div class="code-title">JavaScript - Sticky Overlay</div>
+      <pre>function handleStepEnter(response) {
+  const stepNum = parseInt(response.element.dataset.step);
+  
+  // Remove estados anteriores
+  document.querySelectorAll('.visual-element').forEach(el => {
+    el.classList.remove('active');
+  });
+  
+  // Ativa elemento específico
+  document.querySelector(`[data-visual="${stepNum}"]`)?.classList.add('active');
+}</pre>
+    </div>
+  </section>
+
+  <!-- Exemplo 2: Progress Animation -->
+  <section id="progress-animation" class="example-section">
+    <div class="section-header">
+      <h2>2. Progress-Based Animation</h2>
+      <p>Animações suaves baseadas no progresso do scroll. Perfeito para mostrar evolução, carregamento ou transformações graduais.</p>
+    </div>
+
+    <div class="progress-demo">
+      <div class="progress-graphic">
+        <div class="progress-bar">
+          <div class="progress-fill"></div>
+          <div class="progress-text">0%</div>
+        </div>
+      </div>
+
+      <div class="step" data-step="progress">
+        <h3>Progresso Contínuo</h3>
+        <p>Esta barra progride suavemente conforme você faz scroll. O progresso vai de 0% a 100% durante toda a duração deste step. Ideal para mostrar crescimento, evolução temporal ou qualquer métrica que muda gradualmente.</p>
+      </div>
+    </div>
+
+    <div class="code-snippet">
+      <div class="code-title">JavaScript - Progress Animation</div>
+      <pre>function handleStepProgress(response) {
+  const progress = response.progress; // 0 a 1
+  const percentage = Math.round(progress * 100);
+  
+  document.querySelector('.progress-fill').style.width = `${percentage}%`;
+  document.querySelector('.progress-text').textContent = `${percentage}%`;
+}</pre>
+    </div>
+  </section>
+
+  <!-- Exemplo 3: Phase Animation -->
+  <section id="phase-animation" class="example-section">
+    <div class="section-header">
+      <h2>3. Multi-Phase Animation</h2>
+      <p>Divide uma animação em múltiplas fases dentro de um único step. Útil para sequências complexas ou storytelling em etapas.</p>
+    </div>
+
+    <div class="phase-demo">
+      <div class="phase-graphic">
+        <div class="phase-element">🎭</div>
+      </div>
+
+      <div class="step" data-step="phases">
+        <h3>Transformação em Fases</h3>
+        <p>Este elemento passa por três fases distintas: <strong>Fase 1 (0-33%)</strong> - Aparece e cresce; <strong>Fase 2 (33-66%)</strong> - Rotaciona e muda cor; <strong>Fase 3 (66-100%)</strong> - Se transforma e se move. Cada fase tem sua própria animação dentro do mesmo step.</p>
+      </div>
+    </div>
+
+    <div class="code-snippet">
+      <div class="code-title">JavaScript - Multi-Phase Animation</div>
+      <pre>function animateInPhases(progress) {
+  const element = document.querySelector('.phase-element');
+  
+  if (progress < 0.33) {
+    // Fase 1: Aparecer e crescer
+    const phaseProgress = progress / 0.33;
+    element.style.transform = `scale(${phaseProgress}) rotate(0deg)`;
+    element.style.opacity = phaseProgress;
+  } else if (progress < 0.66) {
+    // Fase 2: Rotacionar
+    const phaseProgress = (progress - 0.33) / 0.33;
+    element.style.transform = `scale(1) rotate(${phaseProgress * 360}deg)`;
+    element.style.background = `hsl(${phaseProgress * 240}, 70%, 50%)`;
+  } else {
+    // Fase 3: Mover e transformar
+    const phaseProgress = (progress - 0.66) / 0.34;
+    element.style.transform = `scale(${1 + phaseProgress * 0.5}) rotate(360deg) translateX(${phaseProgress * 100}px)`;
+  }
+}</pre>
+    </div>
+  </section>
+
+  <!-- Exemplo 4: Chart Animation -->
+  <section id="chart-animation" class="example-section">
+    <div class="section-header">
+      <h2>4. Chart Animation</h2>
+      <p>Animação de gráficos e dados. Excelente para visualizações de dados, comparações e storytelling com números.</p>
+    </div>
+
+    <div class="chart-demo">
+      <div class="chart-graphic">
+        <div class="bar" data-value="85">85</div>
+        <div class="bar" data-value="65">65</div>
+        <div class="bar" data-value="90">90</div>
+        <div class="bar" data-value="45">45</div>
+      </div>
+
+      <div class="step" data-step="chart1">
+        <h3>Dados em Movimento</h3>
+        <p>Primeiro, vemos os dados básicos aparecendo gradualmente. Cada barra representa uma categoria diferente e cresce conforme o progresso do scroll.</p>
+      </div>
+
+      <div class="step" data-step="chart2">
+        <h3>Comparação Visual</h3>
+        <p>Agora podemos comparar os valores. As barras ajustam suas alturas para mostrar a verdadeira proporção entre os dados, facilitando a compreensão das diferenças.</p>
+      </div>
+
+      <div class="step" data-step="chart3">
+        <h3>Destaque dos Insights</h3>
+        <p>Finalmente, destacamos os pontos mais importantes. As barras com melhor performance ganham destaque visual, direcionando a atenção para os insights principais.</p>
+      </div>
+    </div>
+
+    <div class="code-snippet">
+      <div class="code-title">JavaScript - Chart Animation</div>
+      <pre>function animateChart(progress, stepIndex) {
+  const bars = document.querySelectorAll('.bar');
+  
+  bars.forEach((bar, i) => {
+    const value = parseInt(bar.dataset.value);
+    const delay = i * 0.1; // Animação escalonada
+    
+    if (progress > delay) {
+      const adjustedProgress = Math.min((progress - delay) / (1 - delay), 1);
+      bar.style.height = `${value * adjustedProgress}%`;
+    }
+  });
+}</pre>
+    </div>
+  </section>
+
+  <!-- Exemplo 5: Sticky Side - Basic -->
+  <section id="sticky-side-basic" class="example-section">
+    <div class="section-header">
+      <h2>5. Sticky Side - Layout Lateral</h2>
+      <p>Elemento fixo na lateral com conteúdo rolando ao lado. Ideal para dashboards, comparações ou quando você quer manter uma referência visual sempre visível.</p>
+    </div>
+
+    <div class="sticky-side-demo">
+      <div class="sticky-side-graphic">
+        <div class="side-visual" id="side-visual-1">
+          <div class="metric-card">
+            <div class="metric-number" id="metric-1">0</div>
+            <div class="metric-label">Vendas</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-number" id="metric-2">0</div>
+            <div class="metric-label">Usuários</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-number" id="metric-3">0</div>
+            <div class="metric-label">Conversão</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sticky-side-content">
+        <div class="step" data-step="side1">
+          <h3>Janeiro - O Início</h3>
+          <p>Começamos o ano com métricas modestas. As vendas estavam em crescimento inicial, com uma base sólida de usuários começando a se formar.</p>
+        </div>
+
+        <div class="step" data-step="side2">
+          <h3>Março - Crescimento</h3>
+          <p>O crescimento se acelera! Campanhas de marketing começam a fazer efeito, trazendo mais usuários e aumentando as vendas significativamente.</p>
+        </div>
+
+        <div class="step" data-step="side3">
+          <h3>Junho - Explosão</h3>
+          <p>Resultado excepcional! A taxa de conversão dispara com as otimizações implementadas, resultando no melhor trimestre da empresa.</p>
+        </div>
+
+        <div class="step" data-step="side4">
+          <h3>Dezembro - Consolidação</h3>
+          <p>Fechamos o ano com números excepcionais, consolidando nossa posição no mercado e estabelecendo uma base sólida para o próximo ano.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-snippet">
+      <div class="code-title">CSS - Sticky Side Layout</div>
+      <pre>.sticky-side-demo {
+  display: flex;
+  margin: 2rem;
+  gap: 2rem;
+  min-height: 100vh;
+}
+
+.sticky-side-graphic {
+  flex: 0 0 40%;
+  position: sticky;
+  top: 10vh;
+  height: 80vh;
+  background: #1a1a1a;
+  border-radius: 20px;
+  padding: 2rem;
+}
+
+.sticky-side-content {
+  flex: 1;
+  padding-left: 2rem;
+}</pre>
+    </div>
+  </section>
+
+  <!-- Exemplo 6: Sticky Side - Interactive Map -->
+  <section id="sticky-side-map" class="example-section">
+    <div class="section-header">
+      <h2>6. Sticky Side - Mapa Interativo</h2>
+      <p>Um mapa fixo que destaca diferentes regiões conforme a narrativa avança. Perfeito para storytelling geográfico ou dados regionais.</p>
+    </div>
+
+    <div class="sticky-side-demo">
+      <div class="sticky-side-graphic">
+        <div class="side-visual map-container">
+          <div class="map-region" data-region="north" id="region-north">Norte</div>
+          <div class="map-region" data-region="south" id="region-south">Sul</div>
+          <div class="map-region" data-region="east" id="region-east">Leste</div>
+          <div class="map-region" data-region="west" id="region-west">Oeste</div>
+          <div class="map-legend">
+            <div class="legend-item">
+              <div class="legend-color active"></div>
+              <span>Região Ativa</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sticky-side-content">
+        <div class="step" data-step="map1">
+          <h3>Região Norte - Terra do Gelo</h3>
+          <p>A região norte é conhecida por suas paisagens geladas e comunidades resilientes. Aqui, as tradições antigas se misturam com a modernidade, criando uma cultura única.</p>
+        </div>
+
+        <div class="step" data-step="map2">
+          <h3>Região Sul - Campos Dourados</h3>
+          <p>No sul, vastos campos dourados se estendem até o horizonte. Esta é a região agrícola, responsável por alimentar grande parte da população com seus grãos abundantes.</p>
+        </div>
+
+        <div class="step" data-step="map3">
+          <h3>Região Leste - Costa Marítima</h3>
+          <p>O leste abraça o oceano com suas costas rochosas e portos movimentados. O comércio marítimo floresce aqui, conectando terras distantes através das rotas oceânicas.</p>
+        </div>
+
+        <div class="step" data-step="map4">
+          <h3>Região Oeste - Montanhas Místicas</h3>
+          <p>As montanhas do oeste guardam segredos antigos em suas cavernas profundas. Rica em minerais e mistérios, esta região atrai exploradores e aventureiros corajosos.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-snippet">
+      <div class="code-title">JavaScript - Interactive Map</div>
+      <pre>function handleStepEnter(response) {
+  const stepData = response.element.dataset.step;
+  
+  // Remove highlights anteriores
+  document.querySelectorAll('.map-region').forEach(region => {
+    region.classList.remove('highlighted');
+  });
+  
+  // Destaca região específica
+  const regionMap = {
+    'map1': 'north',
+    'map2': 'south', 
+    'map3': 'east',
+    'map4': 'west'
+  };
+  
+  const regionId = regionMap[stepData];
+  if (regionId) {
+    document.getElementById(`region-${regionId}`).classList.add('highlighted');
+  }
+}</pre>
+    </div>
+  </section>
+
+  <!-- Exemplo 7: Sticky Side - Timeline -->
+  <section id="sticky-side-timeline" class="example-section">
+    <div class="section-header">
+      <h2>7. Sticky Side - Timeline Interativa</h2>
+      <p>Timeline vertical fixa que progride conforme a narrativa. Ideal para contar histórias cronológicas, evolução de produtos ou processos sequenciais.</p>
+    </div>
+
+    <div class="sticky-side-demo">
+      <div class="sticky-side-graphic">
+        <div class="side-visual timeline-container">
+          <div class="timeline-line"></div>
+          <div class="timeline-point" data-year="2020" id="point-2020">
+            <div class="point-dot"></div>
+            <div class="point-label">2020</div>
+          </div>
+          <div class="timeline-point" data-year="2021" id="point-2021">
+            <div class="point-dot"></div>
+            <div class="point-label">2021</div>
+          </div>
+          <div class="timeline-point" data-year="2022" id="point-2022">
+            <div class="point-dot"></div>
+            <div class="point-label">2022</div>
+          </div>
+          <div class="timeline-point" data-year="2023" id="point-2023">
+            <div class="point-dot"></div>
+            <div class="point-label">2023</div>
+          </div>
+          <div class="timeline-progress" id="timeline-progress"></div>
+        </div>
+      </div>
+
+      <div class="sticky-side-content">
+        <div class="step" data-step="timeline1">
+          <h3>2020 - A Fundação</h3>
+          <p>Tudo começou com uma ideia simples: criar algo que realmente fizesse a diferença. Em um pequeno escritório, três pessoas decidiram transformar um sonho em realidade.</p>
+        </div>
+
+        <div class="step" data-step="timeline2">
+          <h3>2021 - Primeiro Produto</h3>
+          <p>Após meses de desenvolvimento intenso, lançamos nosso primeiro produto. As primeiras vendas chegaram e com elas, feedback valioso dos usuários pioneiros.</p>
+        </div>
+
+        <div class="step" data-step="timeline3">
+          <h3>2022 - Expansão</h3>
+          <p>O crescimento foi exponencial! Expandimos a equipe, lançamos novos recursos e começamos a atender mercados internacionais. O futuro nunca pareceu tão promissor.</p>
+        </div>
+
+        <div class="step" data-step="timeline4">
+          <h3>2023 - Consolidação</h3>
+          <p>Hoje somos líderes no segmento, com milhões de usuários ativos e uma visão clara para os próximos anos. A jornada continua!</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-snippet">
+      <div class="code-title">JavaScript - Timeline Progress</div>
+      <pre>function updateTimeline(stepData) {
+  const yearMap = {
+    'timeline1': 2020,
+    'timeline2': 2021,
+    'timeline3': 2022,
+    'timeline4': 2023
+  };
+  
+  const currentYear = yearMap[stepData];
+  if (!currentYear) return;
+  
+  // Atualiza pontos da timeline
+  document.querySelectorAll('.timeline-point').forEach(point => {
+    const pointYear = parseInt(point.dataset.year);
+    point.classList.toggle('active', pointYear <= currentYear);
+  });
+  
+  // Atualiza progresso
+  const progress = ((currentYear - 2020) / 3) * 100;
+  document.getElementById('timeline-progress').style.height = `${progress}%`;
+}</pre>
+    </div>
+  </section>
+
+  <!-- Debug Panel -->
+  <div class="debug-panel">
+    <h4>🐛 Debug Info</h4>
+    <div>Step: <span id="debug-step">-</span></div>
+    <div>Progress: <span id="debug-progress">-</span></div>
+    <div>Direction: <span id="debug-direction">-</span></div>
+    <div>Index: <span id="debug-index">-</span></div>
+  </div>
+
+  <script src="https://unpkg.com/intersection-observer@0.5.1/intersection-observer.js"></script>
+  <script src="https://unpkg.com/scrollama"></script>
+  
+  <script>
+    // Inicialização do Scrollama
+    const scroller = scrollama();
+    
+    function init() {
+      scroller
+        .setup({
+          step: '.step',
+          offset: 0.5,
+          progress: true,
+          debug: false
+        })
+        .onStepEnter(handleStepEnter)
+        .onStepExit(handleStepExit)
+        .onStepProgress(handleStepProgress);
+
+      window.addEventListener("resize", scroller.resize);
+    }
+
+    function handleStepEnter(response) {
+      const stepData = response.element.dataset.step;
+      
+      // Remove estados ativos anteriores
+      document.querySelectorAll('.step').forEach(step => {
+        step.classList.remove('is-active');
+      });
+      
+      // Ativa step atual
+      response.element.classList.add('is-active');
+      
+      // Sticky Overlay Logic
+      if (stepData >= '1' && stepData <= '4') {
+        document.querySelectorAll('.visual-element').forEach(el => {
+          el.classList.remove('active');
+        });
+        
+        const activeElement = document.querySelector(`[data-visual="${stepData}"]`);
+        if (activeElement) {
+          activeElement.classList.add('active');
+        }
+      }
+      
+      // Sticky Side - Metrics Animation
+      if (stepData.startsWith('side')) {
+        animateMetrics(stepData);
+      }
+      
+      // Sticky Side - Map Interaction
+      if (stepData.startsWith('map')) {
+        updateMap(stepData);
+      }
+      
+      // Sticky Side - Timeline
+      if (stepData.startsWith('timeline')) {
+        updateTimeline(stepData);
+      }
+      
+      updateDebugInfo({ step: stepData, progress: 0, direction: response.direction, index: response.index });
+    }
+
+    function handleStepExit(response) {
+      response.element.classList.remove('is-active');
+    }
+
+    function handleStepProgress(response) {
+      const progress = response.progress;
+      const stepData = response.element.dataset.step;
+      const stepElement = response.element;
+      
+      // Progress Bar Animation
+      if (stepData === 'progress') {
+        const percentage = Math.round(progress * 100);
+        const progressFill = document.querySelector('.progress-fill');
+        const progressText = document.querySelector('.progress-text');
+        
+        if (progressFill && progressText) {
+          progressFill.style.width = `${percentage}%`;
+          progressText.textContent = `${percentage}%`;
+        }
+      }
+      
+      // Phase Animation
+      if (stepData === 'phases') {
+        animateInPhases(progress);
+      }
+      
+      // Chart Animation
+      if (stepData.startsWith('chart')) {
+        const stepIndex = parseInt(stepData.replace('chart', '')) - 1;
+        animateChart(progress, stepIndex);
+      }
+      
+      updateDebugInfo({ 
+        step: stepData, 
+        progress: Math.round(progress * 100), 
+        direction: 'scrolling', 
+        index: response.index 
+      });
+    }
+
+    function animateInPhases(progress) {
+      const element = document.querySelector('.phase-element');
+      if (!element) return;
+      
+      if (progress < 0.33) {
+        // Fase 1: Aparecer e crescer
+        const phaseProgress = progress / 0.33;
+        element.style.transform = `scale(${phaseProgress}) rotate(0deg)`;
+        element.style.opacity = phaseProgress;
+        element.style.background = '#e74c3c';
+      } else if (progress < 0.66) {
+        // Fase 2: Rotacionar e mudar cor
+        const phaseProgress = (progress - 0.33) / 0.33;
+        element.style.transform = `scale(1) rotate(${phaseProgress * 360}deg)`;
+        element.style.opacity = 1;
+        element.style.background = `hsl(${phaseProgress * 240}, 70%, 50%)`;
+      } else {
+        // Fase 3: Mover e transformar
+        const phaseProgress = (progress - 0.66) / 0.34;
+        element.style.transform = `scale(${1 + phaseProgress * 0.5}) rotate(360deg) translateX(${phaseProgress * 100}px)`;
+        element.style.background = `hsl(240, 70%, ${50 + phaseProgress * 30}%)`;
+      }
+    }
+
+    function animateChart(progress, stepIndex) {
+      const bars = document.querySelectorAll('.bar');
+      
+      bars.forEach((bar, i) => {
+        const value = parseInt(bar.dataset.value);
+        const delay = i * 0.15; // Animação escalonada
+        
+        if (progress > delay) {
+          const adjustedProgress = Math.min((progress - delay) / (1 - delay), 1);
+          let finalHeight = value * adjustedProgress;
+          
+          // Efeitos específicos por step
+          if (stepIndex === 1) {
+            // Step 2: Normaliza as alturas
+            finalHeight = value * adjustedProgress * 0.8;
+          } else if (stepIndex === 2) {
+            // Step 3: Destaca as melhores
+            if (value > 70) {
+              finalHeight = value * adjustedProgress * 1.2;
+              bar.style.boxShadow = `0 0 20px rgba(102, 126, 234, ${adjustedProgress * 0.8})`;
+            } else {
+              finalHeight = value * adjustedProgress * 0.6;
+              bar.style.opacity = 0.5 + adjustedProgress * 0.5;
+            }
+          }
+          
+          bar.style.height = `${finalHeight}%`;
+        }
+      });
+    }
+
+    // Novas funções para Sticky Side
+    function animateMetrics(stepData) {
+      const metrics = {
+        'side1': { sales: 1250, users: 890, conversion: 12 },
+        'side2': { sales: 3400, users: 2100, conversion: 18 },
+        'side3': { sales: 7800, users: 4500, conversion: 35 },
+        'side4': { sales: 12500, users: 8200, conversion: 42 }
+      };
+      
+      const data = metrics[stepData];
+      if (!data) return;
+      
+      animateNumber('metric-1', data.sales, 'k');
+      animateNumber('metric-2', data.users, '');
+      animateNumber('metric-3', data.conversion, '%');
+    }
+
+    function animateNumber(elementId, targetValue, suffix) {
+      const element = document.getElementById(elementId);
+      if (!element) return;
+      
+      const startValue = parseInt(element.textContent) || 0;
+      const duration = 1000;
+      const startTime = performance.now();
+      
+      function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        const currentValue = Math.round(startValue + (targetValue - startValue) * progress);
+        const displayValue = suffix === 'k' ? (currentValue / 1000).toFixed(1) : currentValue;
+        element.textContent = displayValue + suffix;
+        
+        if (progress < 1) {
+          requestAnimationFrame(update);
+        }
+      }
+      
+      requestAnimationFrame(update);
+    }
+
+    function updateMap(stepData) {
+      // Remove highlights anteriores
+      document.querySelectorAll('.map-region').forEach(region => {
+        region.classList.remove('highlighted');
+      });
+      
+      // Destaca região específica
+      const regionMap = {
+        'map1': 'north',
+        'map2': 'south', 
+        'map3': 'east',
+        'map4': 'west'
+      };
+      
+      const regionId = regionMap[stepData];
+      if (regionId) {
+        document.getElementById(`region-${regionId}`).classList.add('highlighted');
+      }
+    }
+
+    function updateTimeline(stepData) {
+      const yearMap = {
+        'timeline1': 2020,
+        'timeline2': 2021,
+        'timeline3': 2022,
+        'timeline4': 2023
+      };
+      
+      const currentYear = yearMap[stepData];
+      if (!currentYear) return;
+      
+      // Atualiza pontos da timeline
+      document.querySelectorAll('.timeline-point').forEach(point => {
+        const pointYear = parseInt(point.dataset.year);
+        point.classList.toggle('active', pointYear <= currentYear);
+      });
+      
+      // Atualiza progresso
+      const progress = ((currentYear - 2020) / 3) * 100;
+      const progressElement = document.getElementById('timeline-progress');
+      if (progressElement) {
+        progressElement.style.height = `${progress}%`;
+      }
+    }
+
+    function updateDebugInfo(data) {
+      document.getElementById('debug-step').textContent = data.step;
+      document.getElementById('debug-progress').textContent = `${data.progress}%`;
+      document.getElementById('debug-direction').textContent = data.direction;
+      document.getElementById('debug-index').textContent = data.index;
+    }
+
+    // Smooth scrolling para navegação
+    document.querySelectorAll('.nav-menu a').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
+    // Inicializa
+    init();
+  </script>
+</body>
+</html>

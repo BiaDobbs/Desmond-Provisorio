@@ -9,14 +9,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.5.3/tabletop.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.5.3/tabletop.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
-    <link rel="stylesheet" href="style.css" />
-    <script src="sketch.js"></script>
-    
+  <link rel="stylesheet" href="style.css" />
+  <script src="sketch.js"></script>
+
 
   <style>
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 2rem;
+    }
+
     main {
       background-color: #1A0D72;
       padding-bottom: 100vh;
@@ -72,22 +77,68 @@
 
     .step {
       margin: 0 auto 20rem auto;
-      color: #2E227C;
-      background-color: rgba(0, 0, 0, 0.015);
+      max-width: 600px;
+      /* Limita a largura */
+      padding: 2rem;
+      /* Mais padding */
+
+      /* Efeito glass morphism */
+      background: rgba(255, 255, 255, 0.01);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+      /* Transição suave */
+      transition: all 0.3s ease;
+    }
+
+    .step:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+      transform: translateY(-5px);
     }
 
     .step:last-child {
       margin-bottom: 100px;
     }
 
+    .step.is-active {
+      background: rgba(248, 244, 232, 0.15);
+      /* Usa a cor #F8F4E8 com transparência */
+      border-color: rgba(248, 244, 232, 0.3);
+      box-shadow: 0 0 40px rgba(248, 244, 232, 0.2), 0 12px 40px rgba(0, 0, 0, 0.4);
+      transform: scale(1.02);
+    }
+
     .step.is-active p {
       color: #F8F4E8;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     }
 
     .step p {
       text-align: center;
-      padding: 1rem;
+      padding: 0;
+      /* Remove padding extra já que temos no container */
       font-size: 1.5rem;
+      color: rgba(46, 34, 124, 0.1);
+      /* Cor original com transparência */
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* Adiciona um efeito sutil de brilho interno */
+    .step::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      border-radius: 20px 20px 0 0;
     }
 
     .sticky-img {
@@ -98,7 +149,7 @@
 
     .sticky-img.in {
       opacity: 1;
-      transform: translateY(0);
+      transform: translateY(0) !important;
     }
 
     #sticky-img-1 {
@@ -131,6 +182,109 @@
       border-radius: 12px;
       background: #222;
     }
+
+    /* Language selector styles */
+    #lang-selector {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 1000;
+    }
+
+    #lang-selector button {
+      background-color: #F8F4E8;
+      color: #1A0D72;
+      border: none;
+      padding: 10px 20px;
+      margin: 0 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+
+    #lang-selector button:hover {
+      background-color: #e0d7b9;
+    }
+
+    /* Family Layers */
+    #family-layers {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+      /* Fica atrás do #scrolly */
+      overflow: hidden;
+    }
+
+    #hero {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .layer {
+      position: absolute;
+      top: 0;
+      /* Alinha ao topo */
+      left: 0;
+      /* Alinha à esquerda */
+      width: 100%;
+      /* Garante que ocupa toda a largura */
+      height: 100%;
+      /* Garante que ocupa toda a altura */
+      background-size: cover;
+      /* Ajusta para cobrir toda a tela */
+      background-repeat: no-repeat;
+      /* Evita repetições */
+      background-position: top center;
+      /* Alinha ao topo e centraliza horizontalmente */
+    }
+
+    .layer-bg {
+      background-image: url('./Quadro Family/Family-layers_0006_Fundo-copy.png');
+    }
+
+    .layer-1 {
+      background-image: url('./Quadro Family/Family-layers_0005_Voa.png');
+    }
+
+    .layer-2 {
+      background-image: url('./Quadro Family/Family-layers_0004_Esquerda.png');
+    }
+
+    .layer-3 {
+      background-image: url('./Quadro Family/Family-layers_0003_Pequeno.png');
+    }
+
+    .layer-4 {
+      background-image: url('./Quadro Family/Family-layers_0002_Meio.png');
+    }
+
+    .layer-5 {
+      background-image: url('./Quadro Family/Family-layers_0001_Direita.png');
+    }
+
+    .layer-6 {
+      background-image: url('./Quadro Family/Family-layers_0000_Pequeno-menor.png');
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .step {
+        margin: 0 1rem 15rem 1rem;
+        padding: 1.5rem;
+        border-radius: 15px;
+      }
+
+      .step p {
+        font-size: 1.3rem;
+      }
+    }
   </style>
 </head>
 
@@ -144,7 +298,7 @@
           <p id="sticky-text">0</p>
         </div>
         <img id="sticky-img-2" class="sticky-img" src="/images/foto.jpeg" style="height: 300px; margin-left: 1rem;">
-        <img id="scroll-frame" src="" alt="Frame animado">
+        <img id="scroll-frame" src="">
         <img id="sticky-img-3" class="sticky-img" src="/images/Captura de tela 2025-08-14 212639.png"
           style="height: 300px; margin-right: 1rem;">
       </div>
@@ -155,39 +309,60 @@
         <div class="step" id="step-2" data-step="2" data-image="">
           <p> Nascido em 24 de janeiro de 1928, Desmond Morris é um zoólogo britânico e pintor surrealista que se
             notabilizou por analisar o comportamento humano sob uma perspetiva zoológica, ou seja, da mesma forma que
-            descreveria os outros animais. Foi
-            curador da coleção de mamíferos do Jardim Zoológico de Londres (1960-1967) e é autor de
-            diversos bestsellers, entre eles, a obra O Macaco Nu (1967)</p>
+            descreveria os outros animais. </p>
+          <!-- Family Layers -->
+          <div id="family-layers">
+            <div id="hero">
+              <div class="layer layer-bg" data-depth="0.10"></div>
+              <div class="layer layer-1" data-depth="0.20"></div>
+              <div class="layer layer-2" data-depth="0.30"></div>
+              <div class="layer layer-3" data-depth="0.40"></div>
+              <div class="layer layer-4" data-depth="0.50"></div>
+              <div class="layer layer-5" data-depth="0.60"></div>
+              <div class="layer layer-6" data-depth="0.70"></div>
+            </div>
+          </div>
         </div>
 
         <div class="step" data-step="3">
+          <p>Foi curador da coleção de mamíferos do Jardim Zoológico de Londres (1960-1967) e é autor de
+            diversos bestsellers, entre eles, a obra O Macaco Nu (1967)</p>
+        </div>
+
+        <div class="step" data-step="4">
           <p>Na qualidade de apresentador do programa Zoo Time, transmitido no final dos anos 50 e
             durante a década de 60, numa parceria entre a Granada TV e a Sociedade de Zoologia de
-            Londres, organizou diversos concursos. Estas iniciativas tiveram como objetivo identificar os
-            animais preferidos dos jovens britânicos e os menos apreciados, para, com base nesta
+            Londres, organizou diversos concursos.</p>
+        </div>
+
+        <div class="step" data-step="5">
+          <p> Estas iniciativas tiveram como objetivo identificar os animais preferidos dos jovens britânicos e os menos
+            apreciados, para, com base nesta
             informação, interpretar as suas reações perante os animais.</p>
         </div>
-        <div class="step" data-step="5">
+
+        <div class="step" data-step="6">
           <p> Para participar, era necessário preencher um formulário e enviar pelo correio.</p>
         </div>
-        <div class="step" data-step="6">
+        <div class="step" data-step="7">
           <p> Em 2014, doou o seu arquivo científico ao Museu de História Natural e da Ciência da
             Universidade do Porto, que agora relança o concurso originalmente realizado em 1961, e
             inspirado no seu trabalho de investigação. Agora chegou sua vez de responder:</p>
         </div>
-        <div class="step" data-step="7">
+        <div class="step" data-step="8">
           <p>Qual é o teu animal preferido? Qual é o animal que gostas menos? Porquê?</p>
         </div>
-        <div class="step" data-step="8">
-          <p>[Daqui em diante não estava no texto, mas acho importnante ter algo linkando com a interface de votos] Mas decidimos fazer isso de uma forma diferente. Abaixo, tem uma pilha de cartas mostrando alguns animais.
+        <div class="step" data-step="9">
+          <p>[Daqui em diante não estava no texto, mas acho importnante ter algo linkando com a interface de votos] Mas
+            decidimos fazer isso de uma forma diferente. Abaixo, tem uma pilha de cartas mostrando alguns animais.
           </p>
         </div>
-        <div class="step" data-step="9">
+        <div class="step" data-step="10">
           <p></p>
         </div>
-        <div class="step" data-step="10">
+        <div class="step" data-step="11">
           <p>Antes de nos dizer qual é o seu favorito de sempre, pode apontar de quais desses aqui gosta e quais não
-            gosta? É fácil, só jogar abaixo!</p>
+            gosta? É fácil, só participar abaixo!</p>
         </div>
       </article>
     </section>
@@ -197,6 +372,12 @@
         style="border:none; margin-top:2rem;" title="Likes and Dislikes Voting">
       </iframe>
     </section>
+
+    <!-- Adicione este seletor de idioma -->
+    <div id="lang-selector">
+      <button onclick="setLanguage('pt')">Português</button>
+      <button onclick="setLanguage('en')">English</button>
+    </div>
   </main>
 
   <script src="https://unpkg.com/intersection-observer@0.5.1/intersection-observer.js"></script>
@@ -210,23 +391,204 @@
 
     var scroller = scrollama();
 
+    function handleStepProgress(response) {
+      const progress = response.progress;
+      const stepIndex = response.index;
+      const stepElement = response.element;
+      const stepNumber = parseInt(stepElement.dataset.step);
+
+      console.log(`Step ${stepNumber}, Progress: ${Math.round(progress * 100)}%`);
+
+      if (stepNumber === 1) {
+        animateImagesForStep1(progress);
+      }
+
+      if (stepNumber === 2) {
+        animateFrameForStep2(progress);
+      }
+    }
+
+    function animateImagesForStep1(progress) {
+      const img1 = document.getElementById('sticky-img-1');
+      const img2 = document.getElementById('sticky-img-2');
+
+      if (!img1 || !img2) return;
+
+      const translateY1 = -100 + (progress * 100);
+      const translateY2 = 100 - (progress * 100);
+      const opacity = Math.min(progress * 2, 1);
+
+      img1.style.transform = `translateY(${translateY1}px)`;
+      img2.style.transform = `translateY(${translateY2}px)`;
+      img1.style.opacity = opacity;
+      img2.style.opacity = opacity;
+    }
+
+    // Variável para detectar direção do scroll
+    let lastScrollY = window.scrollY;
+    let scrollDirection = 'down';
+
+    function animateImagesEnter() {
+      const img1 = document.getElementById('sticky-img-1');
+      const img2 = document.getElementById('sticky-img-2');
+
+      if (!img1 || !img2) return;
+
+      console.log('🎬 Iniciando animação de ENTRADA das imagens');
+      
+      // Garante que estão visíveis
+      img1.style.display = 'block';
+      img2.style.display = 'block';
+      
+      // Remove transições para reset instantâneo
+      img1.style.transition = 'none';
+      img2.style.transition = 'none';
+      
+      // Reset para posições iniciais
+      img1.style.transform = 'translateY(-100px)';
+      img2.style.transform = 'translateY(100px)';
+      img1.style.opacity = '0';
+      img2.style.opacity = '0';
+      
+      // Force reflow
+      img1.offsetHeight;
+      img2.offsetHeight;
+      
+      // Reativa transições
+      img1.style.transition = 'transform 0.7s ease, opacity 0.7s ease';
+      img2.style.transition = 'transform 0.7s ease, opacity 0.7s ease';
+      
+      // Anima para posições finais
+      img1.style.transform = 'translateY(0px)';
+      img2.style.transform = 'translateY(0px)';
+      img1.style.opacity = '1';
+      img2.style.opacity = '1';
+    }
+
+    function animateImagesExit() {
+      const img1 = document.getElementById('sticky-img-1');
+      const img2 = document.getElementById('sticky-img-2');
+
+      if (!img1 || !img2) return;
+
+      console.log('🎬 Iniciando animação de SAÍDA das imagens');
+      
+      // Anima as imagens saindo (reverso da entrada)
+      img1.style.transition = 'transform 0.7s ease, opacity 0.7s ease';
+      img2.style.transition = 'transform 0.7s ease, opacity 0.7s ease';
+      
+      // Volta para as posições iniciais (fora da tela)
+      img1.style.transform = 'translateY(-100px)';
+      img2.style.transform = 'translateY(100px)';
+      img1.style.opacity = '0';
+      img2.style.opacity = '0';
+      
+      // Esconde completamente após a animação
+      setTimeout(() => {
+        img1.style.display = 'none';
+        img2.style.display = 'none';
+      }, 700);
+    }
+
+    function detectLineCrossings() {
+      const steps = document.querySelectorAll('.step');
+      const windowHeight = window.innerHeight;
+      
+      // Detecta direção do scroll
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > lastScrollY) {
+        scrollDirection = 'down';
+      } else if (currentScrollY < lastScrollY) {
+        scrollDirection = 'up';
+      }
+      lastScrollY = currentScrollY;
+
+      const topTrigger = windowHeight * 0.1;
+      const centerTrigger = windowHeight * 0.5;
+      const bottomTrigger = windowHeight * 0.9;
+
+      steps.forEach((step) => {
+        const rect = step.getBoundingClientRect();
+        const stepNumber = parseInt(step.dataset.step);
+
+        const crossingTop = rect.bottom <= topTrigger;
+        const crossingCenter = rect.top <= centerTrigger && rect.bottom >= centerTrigger;
+        const crossingBottom = rect.bottom <= bottomTrigger;
+
+        // STEP 1 - Controle das imagens apenas
+        if (stepNumber === 1) {
+          
+          if (scrollDirection === 'down') {
+            // DESCENDO: CENTER para aparecer, TOP para desaparecer
+            if (crossingCenter && step.dataset.centerDown !== 'true') {
+              //console.log(`🟡 DESCENDO: Step 1 center - IMAGENS APARECEM`);
+              step.dataset.centerDown = 'true';
+              animateImagesEnter();
+            } else if (!crossingCenter) {
+              step.dataset.centerDown = 'false';
+            }
+
+            if (crossingTop && step.dataset.topDown !== 'true') {
+              //console.log(`🔴 DESCENDO: Step 1 top - IMAGENS DESAPARECEM`);
+              step.dataset.topDown = 'true';
+              animateImagesExit();
+            } else if (!crossingTop) {
+              step.dataset.topDown = 'false';
+            }
+          }
+          
+          if (scrollDirection === 'up') {
+            // SUBINDO: TOP para aparecer, CENTER para desaparecer
+            if (!crossingTop && step.dataset.topUp !== 'true') {
+              //console.log(`🔴 SUBINDO: Step 1 volta do top - IMAGENS APARECEM`);
+              step.dataset.topUp = 'true';
+              animateImagesEnter();
+            } else if (crossingTop) {
+              step.dataset.topUp = 'false';
+            }
+
+            if (!crossingCenter && step.dataset.centerUp !== 'true') {
+              //console.log(`🟡 SUBINDO: Step 1 sai do center - IMAGENS DESAPARECEM`);
+              step.dataset.centerUp = 'true';
+              animateImagesExit();
+            } else if (crossingCenter) {
+              step.dataset.centerUp = 'false';
+            }
+          }
+        }
+      });
+    }
+
     function handleStepEnter(response) {
       var el = response.element;
       var frase = sticky.querySelector("p");
       var frameImg = document.getElementById('scroll-frame');
       var stickyThing = document.querySelector('.sticky-thing');
+      var familyLayers = document.getElementById('family-layers');
+
+      if (el.dataset.step == "1") {
+        document.getElementById('sticky-img-1').style.display = 'block';
+        document.getElementById('sticky-img-2').style.display = 'block';
+        familyLayers.style.display = 'none'; // Esconde o Family Layers
+      } else if (el.dataset.step == "2") {
+        document.getElementById('sticky-img-1').style.display = 'none';
+        document.getElementById('sticky-img-2').style.display = 'none';
+        familyLayers.style.display = 'block'; // Mostra o Family Layers
+      } else {
+        document.getElementById('sticky-img-1').style.display = 'none';
+        document.getElementById('sticky-img-2').style.display = 'none';
+        familyLayers.style.display = 'none'; // Esconde o Family Layers
+      }
 
       steps.forEach(step => step.classList.remove('is-active'));
       el.classList.add('is-active');
 
       frase.innerText = el.dataset.step;
 
-      // Step 2: mostra frame animado e frase especial
-      if (el.dataset.step == "2") {
+      if (el.dataset.step == "3") {
         frase.innerText = "Um dos 100 livros mais vendidos de sempre!";
         frase.classList.add('small-bottom');
         frameImg.style.display = "block";
-        /*frase.style.color = "#2E227C"*/
         stickyThing.style.backgroundImage = "url('images/Untitled Design.png')";
       } else {
         frase.classList.remove('small-bottom');
@@ -235,55 +597,44 @@
       }
     }
 
-    // Sincroniza frame com scroll no step 2
-    function handleStepProgress(response) {
-      if (response.element.dataset.step === "2") {
-        const frameImg = document.getElementById('scroll-frame');
-        const totalFrames = 100; // ajuste para o número de imagens que você tem
-        const frame = Math.round(response.progress * totalFrames);
-        frameImg.src = `/frames/frame_${String(frame).padStart(3, '0')}.jpg`;
+    function handleStepExit(response) {
+      var el = response.element;
+      var frase = sticky.querySelector("p");
+
+      if (el.dataset.step == "1" && response.direction == "up") {
+        frase.innerText = "0";
       }
+
+
+    }
+
+    function addDebugLabels() {
+      // Implementar se necessário
+    }
+
+    function setLanguage(lang) {
+      console.log("Idioma selecionado:", lang);
     }
 
     function init() {
       scroller
         .setup({
           step: "#scrolly article .step",
-          offset: 0.60,
-          debug: true
+          offset: 0.5,
+          debug: false,
+          progress: true,
         })
         .onStepEnter(handleStepEnter)
+        .onStepExit(handleStepExit)
         .onStepProgress(handleStepProgress);
 
-      window.addEventListener("resize", scroller.resize);
+      window.addEventListener("resize", () => {
+        scroller.resize();
+      });
+
+      window.addEventListener("scroll", detectLineCrossings);
+      detectLineCrossings();
     }
-
-    // animação das imagens sticky do step 1
-    function animateStickyImages() {
-      const step1 = document.getElementById('step-1');
-      const img1 = document.getElementById('sticky-img-1');
-      const img2 = document.getElementById('sticky-img-2');
-
-      const rect = step1.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-
-      if (rect.top < windowHeight && rect.bottom > 0) {
-        const progress = Math.min(Math.max((windowHeight - rect.top) / (rect.height + windowHeight), 0), 1);
-
-        img1.style.opacity = 1;
-        img2.style.opacity = 1;
-        img1.style.transform = `translateY(${-100 + 1000 * progress}px)`;
-        img2.style.transform = `translateY(${100 - 1000 * progress}px)`;
-      } else {
-        img1.style.opacity = 0;
-        img2.style.opacity = 0;
-        img1.style.transform = `translateY(-100px)`;
-        img2.style.transform = `translateY(100px)`;
-      }
-    }
-
-    window.addEventListener('scroll', animateStickyImages);
-    window.addEventListener('resize', animateStickyImages);
 
     init();
   </script>

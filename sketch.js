@@ -1,5 +1,7 @@
 // --- CONFIG & STATE --- //
 const CONFIG = {
+  fonteTitulo: null,
+  fonteCorpo: null,
   coresGenially: [
     "#F8F4E8",
     "#EDE7CF",
@@ -10,9 +12,9 @@ const CONFIG = {
     "#51468D",
     "#C0B9ED",
   ],
-  borderColor: "#1A0D72",
+  borderColor: "#28720dff",
   backgroundColor: "#F8F4E8",
-  textColor: "#1A0D72",
+  textColor: "#155105ca",
   apiKey:
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJheGxybm50eHRldHhxcHhkeXl4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2ODIwMjQsImV4cCI6MjA2NjI1ODAyNH0.wHG2BHds5mTHo9VLBsqshG5pMTBAFCUmdKJMBKDsHpU",
 };
@@ -74,6 +76,25 @@ const STATE = {
 };
 
 let tutorialSlides;
+let imgSticker;
+let idiomaEscolhido = false;
+let btnPT, btnEN;
+let btnsl, btnsd;
+let demoPlaceholder;
+let heartSize = 0;
+let phase = 0;       // 0 = cresce até metade, 1 = pulsa, 2 = cresce até máximo, 3 = fade out
+let alphaVal = 255;
+let pulseStartTime = 0;
+
+let animando = false;
+let videoAtual = null;
+const duracoes = {
+  crescer1: 300,   // até metade do tamanho
+  pulsar: 200,   // 0.3s de pulsação
+  crescer2: 300,   // até tamanho máximo
+  fade: 200    // sumir
+};
+
 
 // --- UTILS --- //
 function getUserId() {
@@ -98,8 +119,8 @@ function fetchCountryCode() {
     });
 }
 
-function aplicarShadow(el, cor = "8px 12px" + CONFIG.borderColor) {
-  if (el) el.style("box-shadow", cor);
+function aplicarShadow(el, offset = "8px 12px", cor = CONFIG.borderColor) {
+  if (el) el.style("box-shadow", `${offset} ${cor}`);
 }
 
 // --- p5.js LIFECYCLE --- //
@@ -111,6 +132,7 @@ function preload() {
 
   fetchPaises();
 
+
   UI.videoLike = createVideo("DesmondSuperLike.webm");
   UI.videoLike.hide();
   UI.videoLike.elt.style.zIndex = "99999";
@@ -120,14 +142,26 @@ function preload() {
   );
   UI.videoDislike.hide();
   UI.videoDislike.elt.style.zIndex = "99999";
+
+  // Carrega a imagem do sticker
+  imgSticker = loadImage("IMG-0516.webp");
+  btnsl = loadImage("SuperLike.svg");
+  btnsd = loadImage("SuperDislike.svg");
+  demoPlaceholder = loadImage("DemoOnly.png");
 }
 
 function setup() {
+
   createCanvas(windowWidth, windowHeight);
   textAlign(CENTER, CENTER);
   textSize(32);
   rectMode(CENTER);
   UI.isMobile = windowWidth <= 1000;
+
+  if (!idiomaEscolhido) {
+    mostrarTelaEscolhaIdioma();
+    return;
+  }
 
   STATE.userId = getUserId();
   initializePlayerInfo();
@@ -147,6 +181,7 @@ function setup() {
   carregarAnimaisDoSupabase();
 
   tutorialSlides = [
+    { texto: t("tuto0"), mostrarCard: false },
     { texto: t("tuto1"), mostrarCard: true },
     { texto: t("tuto2"), mostrarCard: true, demoSwipe: "right" },
     { texto: t("tuto3"), mostrarCard: true, demoSwipe: "left" },
@@ -169,6 +204,11 @@ function setup() {
 function draw() {
   drawGradientBackground();
 
+  if (!idiomaEscolhido) {
+    mostrarTelaEscolhaIdioma();
+    return;
+  }
+
   if (!STATE.animaisCarregados) {
     push();
     fill(CONFIG.textColor);
@@ -187,21 +227,30 @@ function draw() {
   if (UI.tela === "tutorial") {
     desenharTutorial();
   } else if (UI.tela === "intro") {
+    if (UI.botaoIdioma) UI.botaoIdioma.hide();
     rectMode(CENTER);
     desenharIntro();
   } else if (UI.tela === "votacao") {
+    if (UI.botaoIdioma) UI.botaoIdioma.hide();
     rectMode(CENTER);
     desenharVotacao();
   } else if (UI.tela === "sugestao") {
+    if (UI.botaoIdioma) UI.botaoIdioma.hide();
     rectMode(CENTER);
     desenharSugestaoFinal();
   } else if (UI.tela === "resultado") {
+    if (UI.botaoIdioma) UI.botaoIdioma.hide();
     rectMode(CORNER);
     compararComOutros();
     desenharResultados();
   }
   if (UI.caixaJustificativaVisivel) {
     drawJustificativaBox();
+  }
+
+  if (animando && videoAtual) {
+    //console.log("Animando ícone:", videoAtual);
+    superAnimacao(videoAtual);
   }
 }
 
@@ -245,6 +294,65 @@ function t(key) {
   return key; // fallback se não achar
 }
 
+function atualizarTextosPlayerInfo() {
+  if (!UI.inputNacionalidade || !UI.inputIdade) return;
+  UI.inputNacionalidade.attribute("placeholder", t("placPais"));
+  UI.inputIdade.attribute("placeholder", t("placIdade"));
+  UI.botaoMasculino.html(t("gen1"));
+  UI.botaoFeminino.html(t("gen2"));
+  UI.botaoOutro.html(t("gen3"));
+  UI.inputOutroGenero.attribute("placeholder", t("gen3Cont"));
+  UI.botaoContinuar.html(t("btnCont"));
+}
+
+function mostrarTelaEscolhaIdioma() {
+  //background(CONFIG.backgroundColor);
+  textAlign(CENTER, CENTER);
+  textSize(32);
+  fill(CONFIG.borderColor);
+  text("Escolha seu idioma / Choose your language", width / 2, height / 2 - 60);
+
+  // Botão Português
+  if (!btnPT) {
+    btnPT = createButton("Português");
+    btnPT.class("botao-idioma");
+    btnPT.position(width / 2 - 280, height / 2+20);
+    btnPT.size(110, 40);
+    btnPT.style("font-size", "18px");
+    btnPT.mousePressed(() => {
+      STATE.idioma = "pt";
+      idiomaEscolhido = true;
+      btnPT.remove();
+      btnEN.remove();
+      btnPT = null;
+      btnEN = null;
+      setup();
+    });
+  } else {
+    btnPT.show();
+  }
+
+  // Botão English
+  if (!btnEN) {
+    btnEN = createButton("English");
+    btnEN.class("botao-idioma");
+    btnEN.position(width / 2 + 150, height / 2);
+    btnEN.size(110, 40);
+    btnEN.style("font-size", "18px");
+    btnEN.mousePressed(() => {
+      STATE.idioma = "en";
+      idiomaEscolhido = true;
+      btnPT.remove();
+      btnEN.remove();
+      btnPT = null;
+      btnEN = null;
+      setup();
+    });
+  } else {
+    btnEN.show();
+  }
+}
+
 // --- TUTORIAL ---//
 
 // Criar botões do tutorial (apenas uma vez no setup)
@@ -265,14 +373,20 @@ function criarBotoesTutorial() {
 function desenharTutorial() {
   let passoAtual = tutorialSlides[UI.tutorialPasso];
 
-  // Texto
-  fill("#1A0D72");
-  textAlign(CENTER, TOP);
-  textSize(UI.isMobile ? 18 : 24);
-  textWrap(WORD);
-  let margemTopo = height * 0.06;
-  let larguraTexto = min(width * 0.85, 850);
-  text(passoAtual.texto, width / 2, margemTopo, larguraTexto);
+
+  // Posição dos botões (responsivo)
+  let botaoWidth = min(width * 0.2, 100);
+  let botaoHeight = UI.isMobile ? 30 : 20;
+  let yBotao = height - botaoHeight * 2;
+
+  if (UI.tutorialPasso > 0) {
+    UI.botaoVoltarTutorial.position(width * 0.2 - botaoWidth / 2, yBotao);
+    UI.botaoVoltarTutorial.size(botaoWidth, botaoHeight);
+    UI.botaoVoltarTutorial.show();
+  }
+
+
+
 
   // Card de demonstração
   if (passoAtual.mostrarCard) {
@@ -323,7 +437,7 @@ function desenharTutorial() {
       nameCientifico: t("demoCient"),
       curiosidade: t("demoCurio"),
       tags: [t("demoTag1"), t("demoTag2"), t("demoTag3")],
-      img: null,
+      img: demoPlaceholder,
     });
 
     // Desenhar botões animados POR CIMA do card se necessário
@@ -334,26 +448,57 @@ function desenharTutorial() {
     if (passoAtual.demoSuperPopup) {
       mostrarCaixaJustificativa("like", true);
     }
-    if (passoAtual.previewStickers) {
-    }
 
     pop();
   }
 
-  // Posição dos botões (responsivo)
-  let botaoWidth = min(width * 0.2, 100);
-  let botaoHeight = UI.isMobile ? 30 : 20;
-  let yBotao = height - botaoHeight * 2;
-
-  if (UI.tutorialPasso > 0) {
-    UI.botaoVoltarTutorial.position(width * 0.2 - botaoWidth / 2, yBotao);
-    UI.botaoVoltarTutorial.size(botaoWidth, botaoHeight);
-    UI.botaoVoltarTutorial.show();
+  // --- DESENHAR STICKER NO CENTRO SE previewStickers ---
+  if (passoAtual.previewStickers) {
+    if (imgSticker) {
+      let imgW = min(width * 0.35, 350);
+      let imgH = imgW;
+      imageMode(CENTER);
+      image(imgSticker, width / 2, height / 2, imgW, imgH);
+    }
   }
+
+
+  // --- PULSAÇÃO NO BOTÃO AVANÇAR NO PASSO 0 ---
+  if (UI.tutorialPasso === 0) {
+
+    UI.botaoVoltarTutorial.hide();
+
+    // Cálculo do fator de escala animado (igual ao dos botões do tutorial)
+    const cicloBotoes = 800; // ms para um ciclo completo de pulsação
+    let tBotoes = millis() % cicloBotoes;
+    let faseBotoes = (tBotoes / cicloBotoes) * 2 * PI; // 0 a 2π
+    let fatorEscala = 1.25 + sin(faseBotoes) * 0.25; // varia entre 1 e 1.5
+
+    // Aplica a escala no botão usando CSS transform
+    UI.botaoAvancarTutorial.style("transform", `scale(${fatorEscala})`);
+  } else {
+    // Remove o efeito quando não está no passo 0
+    UI.botaoAvancarTutorial.style("transform", "scale(1)");
+  }
+
+  fill('#51468daa');
+  rectMode(CENTER);
+  rect(0, 0, 100000, 10000);
+
 
   UI.botaoAvancarTutorial.position(width * 0.8 - botaoWidth / 2, yBotao);
   UI.botaoAvancarTutorial.size(botaoWidth, botaoHeight);
   UI.botaoAvancarTutorial.show();
+
+  // Texto
+  let margemTopo = height * 0.06;
+  let larguraTexto = min(width * 0.9, 850);
+  fill(CONFIG.textColor);
+  textAlign(CENTER, TOP);
+  textSize(UI.isMobile ? 22 : 30);
+  textWrap(WORD);
+  text(passoAtual.texto, width / 2, margemTopo, larguraTexto);
+
 }
 
 function desenharBotoesAnimadosTutorial() {
@@ -390,7 +535,8 @@ function desenharBotoesAnimadosTutorial() {
       strokeWeight(4);
       fill(STATE.superDislikeActive ? "#E97474" : "#F1A3A3");
       rectMode(CENTER);
-      rect(0, 0, btnSize, btnSize);
+      //rect(0, 0, btnSize, btnSize);
+      image(btnsd, 0, 0, btnSize, btnSize);
 
       pop();
     }
@@ -405,7 +551,8 @@ function desenharBotoesAnimadosTutorial() {
       strokeWeight(4);
       fill(STATE.superLikeActive ? "#A0D468" : "#D0E6A5");
       rectMode(CENTER);
-      rect(0, 0, btnSize, btnSize);
+      //rect(0, 0, btnSize, btnSize);
+      image(btnsl, 0, 0, btnSize, btnSize);
 
       pop();
     }
@@ -424,8 +571,8 @@ function desenharBotoesAnimadosTutorial() {
       strokeWeight(4);
       fill(STATE.superDislikeActive ? "#E97474" : "#F1A3A3");
       rectMode(CENTER);
-      rect(0, 0, btnSize, btnSize);
-
+      //rect(0, 0, btnSize, btnSize);
+      image(btnsd, 0, 0, btnSize, btnSize);
       pop();
     }
 
@@ -439,7 +586,8 @@ function desenharBotoesAnimadosTutorial() {
       strokeWeight(4);
       fill(STATE.superLikeActive ? "#A0D468" : "#D0E6A5");
       rectMode(CENTER);
-      rect(0, 0, btnSize, btnSize);
+      //rect(0, 0, btnSize, btnSize);
+      image(btnsl, 0, 0, btnSize, btnSize);
 
       pop();
     }
@@ -448,7 +596,7 @@ function desenharBotoesAnimadosTutorial() {
 
 function avancarTutorial() {
   if (UI.tutorialPasso < tutorialSlides.length - 1) {
-    if (UI.tutorialPasso == 4) {
+    if (UI.tutorialPasso == 5) {
       cancelarJustificativa();
     }
     UI.tutorialPasso++;
@@ -462,6 +610,7 @@ function avancarTutorial() {
 // --- PLAYER INFO ---//
 
 function desenharIntro() {
+
   // Calcula dimensões responsivas
   let cardWidth = min(width * 0.85, UI.isMobile ? width : 500);
   let cardHeight = min(height * 0.75, UI.isMobile ? height : 600);
@@ -612,7 +761,7 @@ function posicionarCamposPlayerInfo(cardWidth, cardHeight, cx, cy) {
   UI.botaoOutro.style("z-index", "1000");
   UI.botaoOutro.style("position", "absolute");
 
-  // Campo "Outro" gênero (aparece apenas se selecionado)
+  // Campo "Outro" gênero (apenas se selecionado)
   if (UI.generoSelecionado === "outro") {
     let outroGeneroY = generoY + buttonHeight + 10;
     UI.inputOutroGenero.position(cx - fieldWidth / 2, outroGeneroY);
@@ -820,16 +969,16 @@ function selecionarGenero(genero) {
 
   // Remove seleção visual de todos os botões
   UI.botaoMasculino.removeClass("genero-selecionado");
-  UI.botaoFeminino.removeClass("genero-selecionado");
-  UI.botaoOutro.removeClass("genero-selecionado");
+  UI.botaoFeminino.removeClass("genero-selecionada");
+  UI.botaoOutro.removeClass("genero-selecionada");
 
   // Adiciona seleção visual ao botão escolhido
   if (genero === "masculino") {
-    UI.botaoMasculino.addClass("genero-selecionado");
+    UI.botaoMasculino.addClass("genero-selecionada");
   } else if (genero === "feminino") {
-    UI.botaoFeminino.addClass("genero-selecionado");
+    UI.botaoFeminino.addClass("genero-selecionada");
   } else if (genero === "outro") {
-    UI.botaoOutro.addClass("genero-selecionado");
+    UI.botaoOutro.addClass("genero-selecionada");
     UI.inputOutroGenero.show();
   }
 
@@ -991,6 +1140,10 @@ function getAdaptiveTextSize(text, boxWidth, boxHeight, options = {}) {
 }
 
 function desenharVotacao() {
+  if (!UI.isMobile) {
+    translate(0, -height * 0.08); // ajuste o valor (0.08 = 8% da tela) conforme desejar
+  }
+
   if (STATE.current >= STATE.animals.length) {
     UI.tela = "sugestao";
     return;
@@ -1057,7 +1210,6 @@ function desenharCard(animal) {
   fill("#C0B9ED");
   textAlign(CENTER, CENTER);
   textStyle(BOLD);
-  //let tituloSize = constrain(tituloAltura * 0.2, 16, 38);
   let tituloSize = getAdaptiveTextSize(
     animal.nameComum,
     tituloLargura,
@@ -1074,88 +1226,165 @@ function desenharCard(animal) {
   // Imagem
   if (animal.img) {
     push();
-    drawingContext.shadowOffsetX = 8;
-    drawingContext.shadowOffsetY = 12;
-    drawingContext.shadowColor = "#1A0D72";
-
+    drawingContext.shadowOffsetX = 20;
+    drawingContext.shadowOffsetY = 25;
+    drawingContext.shadowColor = CONFIG.borderColor;
     imageMode(CENTER);
-    let imagemAltura = cardHeight * 0.6;
-    let imagemY = (-cardHeight * 0.05) / 2;
-    image(animal.img, 0, imagemY, cardWidth * 0.85, imagemAltura);
+
+    // Tamanho do retângulo
+    let imgBoxW = cardWidth * 0.8;
+    let imgBoxH = cardHeight * 0.5;
+
+    // Calcula crop para "cover"
+    let imgAR = animal.img.width / animal.img.height;
+    let boxAR = imgBoxW / imgBoxH;
+    let sx, sy, sw, sh;
+
+    if (imgAR > boxAR) {
+      // Imagem mais larga: corta laterais
+      sh = animal.img.height;
+      sw = sh * boxAR;
+      sx = (animal.img.width - sw) / 2;
+      sy = 0;
+    } else {
+      // Imagem mais alta: corta topo/baixo
+      sw = animal.img.width;
+      sh = sw / boxAR;
+      sx = 0;
+      sy = (animal.img.height - sh) / 2;
+    }
+
+    // Posição vertical: logo abaixo do nome científico
+    let nomeCientificoY = -cardHeight / 2 + tituloAltura + cardHeight * 0.03;
+    let imgY = nomeCientificoY + cardHeight * 0.06 + imgBoxH / 2 + 8;
+
+    // Desenha a imagem centralizada e "cover"
+    image(
+      animal.img,
+      0, imgY,
+      imgBoxW, imgBoxH,
+      sx, sy, sw, sh
+    );
     pop();
   }
+
   // Nome científico
   textStyle(ITALIC);
-  textSize(cardHeight * 0.06);
-  text(animal.nameCientifico, 0, cardHeight / 2 - cardHeight * 0.16);
+  fill(CONFIG.borderColor);
+  let nomeCientificoSize = cardHeight * 0.045;
+  textSize(nomeCientificoSize);
+  let nomeCientificoY = -cardHeight / 2 + tituloAltura + cardHeight * 0.04;
+  text(animal.nameCientifico, 0, nomeCientificoY, cardWidth * 0.9, cardHeight * 0.06);
 
-  // Fun fact
+  // Curiosidade (texto adaptativo em retângulo entre imagem e tags)
   textStyle(NORMAL);
   textAlign(CENTER, TOP);
   textWrap(WORD);
   fill(CONFIG.borderColor);
 
-  let curiosidadeY = cardHeight / 2 - cardHeight * 0.11;
-  let curiosidadeWidth = cardWidth * 0.88;
+  // Posição e altura dinâmica
+  let imgBoxW = cardWidth * 0.8;
+  let imgBoxH = cardHeight * 0.5;
+  //let nomeCientificoY = -cardHeight / 2 + tituloAltura + cardHeight * 0.03;
+  let imgY = nomeCientificoY + cardHeight * 0.06 + imgBoxH / 2 + 8;
 
-  let curiosidadeHeight = cardHeight * 0.15; // ou whatever altura você quer dar para esse espaço
+  // Retângulo da curiosidade: logo abaixo da imagem, até antes das tags
+  let curiosidadeBoxY = imgY + imgBoxH / 1.3;
+  let curiosidadeBoxH;
+  if (animal.tags && animal.tags.length > 0) {
+    let tagBoxH = cardHeight * 0.08;
+    let tagsY = cardHeight / 2 + tagBoxH;
+    curiosidadeBoxH = tagsY - curiosidadeBoxY - 12;
+  } else {
+    let tagsY = cardHeight / 2;
+    curiosidadeBoxH = tagsY - curiosidadeBoxY - 12;
+  }
+  let curiosidadeBoxW = cardWidth * 0.88;
 
+
+  // Tamanho de fonte adaptativo
   let curiosidadeSize = getAdaptiveTextSize(
     animal.curiosidade || "",
-    curiosidadeWidth,
-    curiosidadeHeight,
+    curiosidadeBoxW,
+    curiosidadeBoxH,
     {
-      maxSizeRatio: 0.3, // Como é texto corrido, pode ser menor proporcionalmente
-      minSize: 12, // Mínimo legível para parágrafo
-      widthUsage: 1.0, // Usa 100% da largura disponível (você já definiu 88% do card)
-      lengthCurve: 20, // Curva mais suave para textos longos
+      maxSizeRatio: 0.32,
+      minSize: UI.isMobile ? 24 : 18,
+      widthUsage: 1.0,
+      lengthCurve: 18,
     }
   );
   textSize(curiosidadeSize);
-  text(animal.curiosidade || "", 0, curiosidadeY, curiosidadeWidth);
+  text(
+    animal.curiosidade || "",
+    0,
+    curiosidadeBoxY,
+    curiosidadeBoxW,
+    curiosidadeBoxH
+  );
+
   // --- botões de super‑voto ---
   let btnSize = cardWidth * 0.15;
   if (UI.isMobile) {
     let btnY = cardHeight / 2 + btnSize * 2;
     let spacing = btnSize * 2;
+    let bxDislike = -spacing / 2;
+    let bxLike = spacing / 2;
+
     if (STATE.superDislikesCount < 3) {
+      push();
+      rectMode(CENTER);
+      imageMode(CENTER);
       stroke(CONFIG.borderColor);
       strokeWeight(4);
       fill(STATE.superDislikeActive ? "#E97474" : "#F1A3A3");
-      rect(-spacing / 2, btnY, btnSize, btnSize);
+      //rect(bxDislike, btnY, btnSize, btnSize, 8);
+      image(btnsd, bxDislike, btnY, btnSize, btnSize);
       noStroke();
       fill(CONFIG.borderColor);
       textSize(btnSize * 0.25);
       textAlign(CENTER, TOP);
       text(
         `x ${3 - STATE.superDislikesCount}`,
-        -spacing / 2,
+        bxDislike,
         btnY + btnSize / 2 + 4
       );
+      pop();
     }
     if (STATE.superLikesCount < 3) {
+      push();
+      rectMode(CENTER);
+      imageMode(CENTER);
       stroke(CONFIG.borderColor);
       strokeWeight(4);
       fill(STATE.superLikeActive ? "#A0D468" : "#D0E6A5");
-      rect(spacing / 2, btnY, btnSize, btnSize);
+      //rect(bxLike, btnY, btnSize, btnSize, 8);
+      image(btnsl, bxLike, btnY, btnSize, btnSize);
       noStroke();
       fill(CONFIG.borderColor);
       textSize(btnSize * 0.25);
       textAlign(CENTER, TOP);
       text(
         `x ${3 - STATE.superLikesCount}`,
-        spacing / 2,
+        bxLike,
         btnY + btnSize / 2 + 4
       );
+      pop();
     }
   } else {
-    let btnY = cardHeight / 2 - btnSize * 0.6;
-    let btnOffsetX = cardWidth * 0.45;
+    // Desktop: botões mais afastados e fora do card
+    let btnY = cardHeight / 2 + btnSize * 1.2; // mais abaixo do card
+    let btnOffsetX = cardWidth * 0.65; // mais afastado do centro
+
     if (STATE.superDislikesCount < 3) {
+      push();
+      rectMode(CENTER);
+      imageMode(CENTER);
       stroke(CONFIG.borderColor);
       strokeWeight(4);
       fill(STATE.superDislikeActive ? "#E97474" : "#F1A3A3");
-      rect(-btnOffsetX, btnY, btnSize, btnSize);
+      ///rect(-btnOffsetX, btnY, btnSize, btnSize, 8);
+      image(btnsd, -btnOffsetX, btnY, btnSize, btnSize);
       noStroke();
       fill(CONFIG.borderColor);
       textSize(btnSize * 0.25);
@@ -1165,12 +1394,17 @@ function desenharCard(animal) {
         -btnOffsetX,
         btnY + btnSize / 2 + 4
       );
+      pop();
     }
     if (STATE.superLikesCount < 3) {
+      push();
+      rectMode(CENTER);
+      imageMode(CENTER);
       stroke(CONFIG.borderColor);
       strokeWeight(4);
       fill(STATE.superLikeActive ? "#A0D468" : "#D0E6A5");
-      rect(btnOffsetX, btnY, btnSize, btnSize);
+      //rect(btnOffsetX, btnY, btnSize, btnSize, 8);
+      image(btnsl, btnOffsetX, btnY, btnSize, btnSize);
       noStroke();
       fill(CONFIG.borderColor);
       textSize(btnSize * 0.25);
@@ -1180,8 +1414,10 @@ function desenharCard(animal) {
         btnOffsetX,
         btnY + btnSize / 2 + 4
       );
+      pop();
     }
   }
+
   // Tags
   if (animal.tags && animal.tags.length > 0) {
     let tagBoxW = cardWidth * 0.28;
@@ -1260,7 +1496,7 @@ function vote(direction) {
   })
     .then((res) => {
       if (!res.ok) throw new Error("Erro ao enviar voto");
-      console.log("Voto enviado com sucesso, incluindo informações do jogador");
+      //console.log("Voto enviado com sucesso, incluindo informações do jogador");
       STATE.offsetX = 0;
       STATE.current++;
     })
@@ -1290,6 +1526,7 @@ function mouseReleased() {
   } else {
     STATE.offsetX = 0;
   }
+
   let cardWidth, cardHeight;
   if (UI.isMobile) {
     cardHeight = height * 0.6;
@@ -1303,11 +1540,12 @@ function mouseReleased() {
   let dy = mouseY - height / 2;
   if (UI.isMobile) {
     dy += windowHeight * 0.05;
-  }
-  if (UI.isMobile) {
+    // Botões mobile
     let btnY = cardHeight / 2 + btnSize * 2;
     let spacing = btnSize * 2;
     let bxDislike = -spacing / 2;
+    let bxLike = spacing / 2;
+
     if (
       dx >= bxDislike - btnSize / 2 &&
       dx <= bxDislike + btnSize / 2 &&
@@ -1319,7 +1557,6 @@ function mouseReleased() {
       mostrarCaixaJustificativa("dislike");
       return;
     }
-    let bxLike = spacing / 2;
     if (
       dx >= bxLike - btnSize / 2 &&
       dx <= bxLike + btnSize / 2 &&
@@ -1332,9 +1569,12 @@ function mouseReleased() {
       return;
     }
   } else {
-    let btnY = cardHeight / 2 - btnSize * 0.6;
-    let btnOffsetX = cardWidth * 0.45;
+    // Botões desktop (fora do card, mais afastados)
+    let btnY = cardHeight / 2 + btnSize * 1.2;
+    let btnOffsetX = cardWidth * 0.65;
     let bxDislike = -btnOffsetX;
+    let bxLike = btnOffsetX;
+
     if (
       dx >= bxDislike - btnSize / 2 &&
       dx <= bxDislike + btnSize / 2 &&
@@ -1346,7 +1586,6 @@ function mouseReleased() {
       mostrarCaixaJustificativa("dislike");
       return;
     }
-    let bxLike = btnOffsetX;
     if (
       dx >= bxLike - btnSize / 2 &&
       dx <= bxLike + btnSize / 2 &&
@@ -1517,7 +1756,7 @@ function mostrarCaixaJustificativa(tipo, isDemo = false) {
   if (!currentAnimal) return;
 
   const tipoAtual = UI.tipoSuper;
-  const videoAtual = tipoAtual === "like" ? UI.videoLike : UI.videoDislike;
+  const videoAtual = tipoAtual === "like" ? btnsl : btnsd;
   fetch("https://baxlrnntxtetxqpxdyyx.supabase.co/rest/v1/super_votes", {
     method: "POST",
     headers: {
@@ -1559,48 +1798,39 @@ function mostrarCaixaJustificativa(tipo, isDemo = false) {
   });
 }*/
 
-function enviarJustificativa() {
+/*function enviarJustificativa() {
   let texto = UI.caixaInput.value().trim();
   if (texto.length === 0) return;
+
   let currentAnimal = STATE.animals[STATE.current];
   if (!currentAnimal) return;
+
   const tipoAtual = UI.tipoSuper;
+  if (!tipoAtual) return;
 
-  // Seleciona o prefixo da sequência de imagens
-  const prefix =
+  // Define o arquivo de vídeo correspondente
+  const videoSrc =
     tipoAtual === "like"
-      ? "assets/Desmond Super Like_[#####]"
-      : "assets/Desmond Super Dislike_[#####]";
-  const totalFrames = 69;
-  const fps = 30;
-  const frameDuration = 1000 / fps;
+      ? "DesmondSuperLike.webm"
+      : "DesmondSuperDislike.webm";
 
-  // Cria overlay <img> full screen
-  const overlay = document.createElement("img");
+  // Cria overlay <video> full-screen
+  const overlay = document.createElement("video");
+  overlay.src = videoSrc;
   overlay.style.position = "fixed";
-  overlay.style.left = "0";
   overlay.style.top = "0";
+  overlay.style.left = "0";
   overlay.style.width = "100vw";
   overlay.style.height = "100vh";
   overlay.style.objectFit = "cover";
   overlay.style.pointerEvents = "none";
   overlay.style.zIndex = "99999";
+  overlay.autoplay = true;
+  overlay.muted = true; // evita bloqueio de autoplay em mobile
+  overlay.playsInline = true; // mobile Safari
   document.body.appendChild(overlay);
 
-  // Função para tocar a sequência frame a frame
-  let idx = 1;
-  overlay.src = `${prefix}${String(idx).padStart(2, "0")}.png`;
-  overlay.style.display = "block";
-  const interval = setInterval(() => {
-    idx++;
-    if (idx > totalFrames) {
-      clearInterval(interval);
-      overlay.style.display = "none";
-      overlay.remove();
-    } else {
-      overlay.src = `${prefix}${String(idx).padStart(2, "0")}.png`;
-    }
-  }, frameDuration);
+  overlay.play(); // garante que comece a rodar
 
   // Envia para o Supabase
   fetch("https://baxlrnntxtetxqpxdyyx.supabase.co/rest/v1/super_votes", {
@@ -1619,6 +1849,7 @@ function enviarJustificativa() {
       timestamp: new Date().toISOString(),
     }),
   }).then(() => {
+    // Atualiza contadores e estado
     if (tipoAtual === "like") {
       STATE.superLikesCount++;
       STATE.superLikeActive = false;
@@ -1626,6 +1857,7 @@ function enviarJustificativa() {
       STATE.superDislikesCount++;
       STATE.superDislikeActive = false;
     }
+
     UI.tipoSuper = null;
     UI.caixaInput.hide();
     UI.botaoEnviar.hide();
@@ -1633,8 +1865,14 @@ function enviarJustificativa() {
     UI.caixaJustificativaVisivel = false;
     STATE.offsetX = 0;
     STATE.current++;
+
+    // Remove overlay após 1,5s
+    setTimeout(() => {
+      overlay.pause();
+      overlay.remove();
+    }, 1500);
   });
-}
+}*/
 
 function cancelarJustificativa() {
   UI.tipoSuper = null;
@@ -1652,18 +1890,19 @@ function cancelarJustificativa() {
   UI.caixaJustificativaVisivel = false;
 }
 
-// Função específica para esconder caixa de demo no tutorial
-function esconderCaixaJustificativaDemo() {
-  cancelarJustificativa();
-}
-
 function enviarJustificativa() {
   let texto = UI.caixaInput.value().trim();
   if (texto.length === 0) return;
   let currentAnimal = STATE.animals[STATE.current];
   if (!currentAnimal) return;
   const tipoAtual = UI.tipoSuper;
-  const videoAtual = tipoAtual === "like" ? UI.videoLike : UI.videoDislike;
+  videoAtual = tipoAtual === "like" ? btnsl : btnsd;
+  console.log(tipoAtual);
+  console.log("icone =", videoAtual);
+  heartSize = 0;
+  alphaVal = 255;
+  phase = 0;
+
   fetch("https://baxlrnntxtetxqpxdyyx.supabase.co/rest/v1/super_votes", {
     method: "POST",
     headers: {
@@ -1692,27 +1931,66 @@ function enviarJustificativa() {
     UI.botaoEnviar.hide();
     UI.botaoCancelar.hide();
     UI.caixaJustificativaVisivel = false;
-    videoAtual.show();
+    animando = true;
+    animStartTime = millis();
+
+    /*videoAtual.show();
     videoAtual.loop();
-    UI.videoEmExibicao = videoAtual;
+    UI.videoEmExibicao = videoAtual;*/
     setTimeout(() => {
-      videoAtual.stop();
-      videoAtual.hide();
-      UI.videoEmExibicao = false;
+      //videoAtual.stop();
+      //videoAtual.hide();
+      //UI.videoEmExibicao = false;
       STATE.offsetX = 0;
       STATE.current++;
-    }, 2500);
+    }, 500);
   });
 }
+function superAnimacao(img) {
+  let elapsed = millis() - animStartTime;
 
-function cancelarJustificativa() {
-  UI.tipoSuper = null;
-  STATE.superLikeActive = false;
-  STATE.superDislikeActive = false;
-  UI.caixaInput.hide();
-  UI.botaoEnviar.hide();
-  UI.botaoCancelar.hide();
-  UI.caixaJustificativaVisivel = false;
+  // soma total
+  let totalDuracao = duracoes.crescer1 + duracoes.pulsar + duracoes.crescer2 + duracoes.fade;
+
+  if (elapsed >= totalDuracao) {
+    animando = false;
+    return;
+  }
+
+  let maxSize = width * 0.8;
+  let halfSize = maxSize / 4;
+  let currentSize;
+  let alphaVal = 255;
+
+  if (elapsed < duracoes.crescer1) {
+    // Fase 1: Cresce até metade
+    let t = elapsed / duracoes.crescer1;
+    currentSize = lerp(0, halfSize, t);
+
+  } else if (elapsed < duracoes.crescer1 + duracoes.pulsar) {
+    // Fase 2: Pulsação
+    let t = (elapsed - duracoes.crescer1) / duracoes.pulsar;
+    let base = halfSize;
+    let pulse = sin(t * TWO_PI * 2) * 10; // 2 batimentos em 0.3s
+    currentSize = base + pulse;
+
+  } else if (elapsed < duracoes.crescer1 + duracoes.pulsar + duracoes.crescer2) {
+    // Fase 3: Cresce até máximo
+    let t = (elapsed - duracoes.crescer1 - duracoes.pulsar) / duracoes.crescer2;
+    currentSize = lerp(halfSize, maxSize, t);
+
+  } else {
+    // Fase 4: Fade out
+    let t = (elapsed - duracoes.crescer1 - duracoes.pulsar - duracoes.crescer2) / duracoes.fade;
+    currentSize = maxSize;
+    alphaVal = lerp(255, 0, t);
+  }
+
+  // Desenha imagem
+  imageMode(CENTER);
+  tint(255, alphaVal);
+  image(img, width / 2, height / 2, currentSize, currentSize);
+  tint(255, 255); // reset para não afetar o resto do sketch
 }
 
 // --- SUGESTÃO --- //
@@ -1730,7 +2008,7 @@ function makeBox(
 ) {
   const box = createDiv();
   box.class("caixa-sugestao");
-  box.style("width", boxW + "px");
+  box.style("width", boxW + 20 + "px");
 
   if (isMobile) {
     box.style("height", boxH + "px");
@@ -1753,7 +2031,7 @@ function makeBox(
   // Faixa de título
   const title = createDiv(titulo);
   title.class("titulo");
-  title.style("font-size", fontSize + 4 + "px");
+  title.style("font-size", fontSize + "px");
   title.style("position", "relative");
   title.style("margin-bottom", "0px");
   title.style("top", -Math.round(boxH * 0.05) + "px"); // sobe 5% da altura da caixa
@@ -2015,21 +2293,21 @@ function desenharMensagemSucesso() {
 
   // Caixa do modal
   const box = createDiv();
-  box.style("background", "#F8F4E8");
-  box.style("border", "8px solid #1A0D72");
+  box.style("background", "${CONFIG.backgroundColor}");
+  box.style("border", "8px solid ${CONFIG.borderColor}");
   box.style("padding", "32px 32px 24px 32px");
   box.style("border-radius", "0");
   box.style("min-width", "320px");
   box.style("max-width", "90vw");
-  box.style("box-shadow", "0 10px 10px #1A0D72");
+  box.style("box-shadow", "0 10px 10px ${CONFIG.borderColor}");
   box.style("text-align", "center");
   box.style("position", "relative");
   box.parent(UI.sucessoModal);
 
   // Título
   const titulo = createDiv(t("sucssTit"));
-  titulo.style("background", "#1A0D72");
-  titulo.style("color", "#C0B9ED");
+  titulo.style("background", "${CONFIG.textColor}");
+  titulo.style("color", "#b0f7aaff");
   titulo.style("font-weight", "bold");
   titulo.style("font-size", "1.3em");
   titulo.style("padding", "10px 0");
@@ -2048,7 +2326,7 @@ function desenharMensagemSucesso() {
     textoExplicativo = t("sucssTxtComp");
   }
   const texto = createP(textoExplicativo);
-  texto.style("color", "#1A0D72");
+  texto.style("color", "${CONFIG.textColor}");
   texto.style("font-size", "1.1em");
   texto.style("margin", "0 0 18px 0");
   texto.parent(box);

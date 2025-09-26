@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Guia Visual: Customizando Sticky-Thing</title>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      background: #1A0D72;
+      color: #ffffff;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #1A0D72 0%, #2E227C 100%);
+      padding: 4rem 2rem;
+      text-align: center;
+      border-bottom: 3px solid #F8F4E8;
+    }
+
+    .header h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      color: #F8F4E8;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .header p {
+      font-size: 1.2rem;
+      opacity: 0.9;
+      max-width: 800px;
+      margin: 0 auto;
+      color: #F8F4E8;
+    }
+
+    .nav-menu {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(248, 244, 232, 0.1);
+      backdrop-filter: blur(15px);
+      border-radius: 15px;
+      padding: 1rem;
+      z-index: 1000;
+      border: 1px solid rgba(248, 244, 232, 0.2);
+    }
+
+    .nav-menu a {
+      display: block;
+      color: #F8F4E8;
+      text-decoration: none;
+      padding: 0.7rem;
+      border-radius: 8px;
+      transition: all 0.3s;
+      font-size: 0.9rem;
+      border: 1px solid transparent;
+    }
+
+    .nav-menu a:hover {
+      background: rgba(248, 244, 232, 0.2);
+      border-color: rgba(248, 244, 232, 0.3);
+    }
+
+    /* Exemplo Section Base */
+    .example-section {
+      margin: 4rem 0;
+      position: relative;
+    }
+
+    .section-header {
+      background: rgba(248, 244, 232, 0.08);
+      backdrop-filter: blur(15px);
+      padding: 2rem;
+      border-left: 5px solid #F8F4E8;
+      margin: 0 2rem 2rem 2rem;
+      border-radius: 15px;
+      border: 1px solid rgba(248, 244, 232, 0.1);
+    }
+
+    .section-header h2 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      color: #F8F4E8;
+    }
+
+    .section-header p {
+      opacity: 0.8;
+      font-size: 1.1rem;
+    }
+
+    /* Steps com glass morphism (mesmo estilo do seu projeto) */
+    .step {
+      margin: 0 auto 20rem auto;
+      max-width: 600px;
+      padding: 2rem;
+      
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      
+      transition: all 0.3s ease;
+    }
+
+    .step:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+      transform: translateY(-5px);
+    }
+
+    .step.is-active {
+      background: rgba(248, 244, 232, 0.15);
+      border-color: rgba(248, 244, 232, 0.3);
+      box-shadow: 0 0 40px rgba(248, 244, 232, 0.2), 0 12px 40px rgba(0, 0, 0, 0.4);
+      transform: scale(1.02);
+    }
+
+    .step.is-active p {
+      color: #F8F4E8;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .step::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      border-radius: 20px 20px 0 0;
+    }
+
+    .step p {
+      text-align: center;
+      padding: 0;
+      font-size: 1.5rem;
+      color: rgba(46, 34, 124, 0.9);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .step h3 {
+      color: #F8F4E8;
+      margin-bottom: 1rem;
+      font-size: 1.8rem;
+      text-align: center;
+    }
+
+    /* Sticky Thing Base */
+    .sticky-demo {
+      position: relative;
+      height: 300vh;
+    }
+
+    .sticky-thing {
+      position: sticky;
+      top: 10vh;
+      height: 80vh;
+      margin: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #2E227C, #1A0D72);
+      border-radius: 20px;
+      overflow: hidden;
+      transition: all 0.5s ease;
+      border: 2px solid rgba(248, 244, 232, 0.1);
+    }
+
+    .sticky-text {
+      font-size: 8rem;
+      font-weight: 900;
+      color: #F8F4E8;
+      transition: all 0.5s ease;
+      text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+
+    .sticky-img {
+      position: absolute;
+      height: 200px;
+      opacity: 0;
+      transition: all 0.7s ease;
+      border-radius: 15px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    /* Diferentes exemplos de sticky-thing */
+
+    /* Exemplo 1: Trigger-Based State Changes */
+    .example-1 .sticky-thing {
+      background: linear-gradient(45deg, #1A0D72, #2E227C);
+    }
+
+    .example-1 .state-top .sticky-thing {
+      background: linear-gradient(45deg, #ff6b6b, #e74c3c);
+      transform: scale(0.9);
+    }
+
+    .example-1 .state-center .sticky-thing {
+      background: linear-gradient(45deg, #4ecdc4, #45b7d1);
+      transform: scale(1.05);
+    }
+
+    .example-1 .state-bottom .sticky-thing {
+      background: linear-gradient(45deg, #96ceb4, #74b9ff);
+      transform: scale(0.95) rotate(2deg);
+    }
+
+    /* Exemplo 2: Progress-Based Animations */
+    .example-2 .progress-element {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      background: #F8F4E8;
+      border-radius: 50%;
+      transition: all 0.1s ease;
+    }
+
+    .example-2 .progress-bar {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      height: 20px;
+      background: rgba(248, 244, 232, 0.2);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .example-2 .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #F8F4E8, #2E227C);
+      border-radius: 10px;
+      width: 0%;
+      transition: width 0.1s ease;
+    }
+
+    /* Exemplo 3: Image Animations */
+    .example-3 .img-container {
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="%23F8F4E8"/><text x="50" y="60" text-anchor="middle" fill="%231A0D72" font-size="30">🎭</text></svg>');
+      background-size: contain;
+      opacity: 0;
+      transition: all 0.7s ease;
+    }
+
+    .example-3 .img-1 { top: 20%; left: 20%; }
+    .example-3 .img-2 { top: 20%; right: 20%; }
+    .example-3 .img-3 { bottom: 20%; left: 50%; transform: translateX(-50%); }
+
+    /* Debug Panel Específico */
+    .debug-panel {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background: rgba(0,0,0,0.9);
+      color: #00ff00;
+      padding: 1rem;
+      border-radius: 10px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      border: 1px solid #00ff00;
+      min-width: 300px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .debug-panel h4 {
+      color: #00ff00;
+      margin-bottom: 0.5rem;
+      border-bottom: 1px solid #00ff00;
+      padding-bottom: 0.5rem;
+    }
+
+    /* Code Snippets */
+    .code-snippet {
+      background: #0a0a0a;
+      padding: 1.5rem;
+      border-radius: 15px;
+      margin: 2rem;
+      border-left: 5px solid #F8F4E8;
+      overflow-x: auto;
+      border: 1px solid rgba(248, 244, 232, 0.1);
+    }
+
+    .code-snippet pre {
+      color: #F8F4E8;
+      font-size: 0.9rem;
+      white-space: pre-wrap;
+    }
+
+    .code-title {
+      color: #F8F4E8;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      border-bottom: 1px solid rgba(248, 244, 232, 0.3);
+      padding-bottom: 0.5rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header h1 { font-size: 2rem; }
+      .nav-menu { 
+        position: relative; 
+        margin: 1rem; 
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+      .step { 
+        margin: 8rem auto; 
+        margin-left: 1rem;
+        margin-right: 1rem;
+      }
+      .sticky-thing { margin: 0 1rem; }
+      .sticky-text { font-size: 4rem; }
+    }
+
+    /* Adicione ao CSS existente */
+.combined-element {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  background: #F8F4E8;
+  border-radius: 50%;
+  opacity: 0;
+  transition: all 0.1s ease;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.combined-bar {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  height: 10px;
+  background: linear-gradient(90deg, #F8F4E8, #2E227C);
+  border-radius: 5px;
+  width: 0%;
+  transition: width 0.1s ease;
+}
+
+.example-4 .sticky-thing {
+  border: 3px solid rgba(248, 244, 232, 0.2);
+}
+  </style>
+</head>
+
+<body>
+  <header class="header">
+    <h1>🎨 Customizando Sticky-Thing</h1>
+    <p>Exemplos práticos de como usar triggers e progresso para criar animações incríveis no elemento fixo, baseado no seu projeto Desmond Morris</p>
+  </header>
+
+  <nav class="nav-menu">
+    <a href="#trigger-states">Estados por Trigger</a>
+    <a href="#progress-animation">Animação por Progresso</a>
+    <a href="#image-control">Controle de Imagens</a>
+    <a href="#combined-effects">Efeitos Combinados</a>
+  </nav>
+
+  <!-- Exemplo 1: Estados baseados em Triggers - CORRIGIDO -->
+  <section id="trigger-states" class="example-section example-1">
+    <div class="section-header">
+      <h2>1. Estados Baseados em Triggers</h2>
+      <p>O sticky-thing muda de aparência baseado em qual trigger cada step está cruzando. Primeiro BOTTOM (verde), depois CENTER (azul), depois TOP (vermelho).</p>
+    </div>
+
+    <div class="sticky-demo">
+      <div class="sticky-thing" id="sticky-1">
+        <div class="sticky-text" id="text-1">👁️</div>
+      </div>
+
+      <div class="step" data-step="1">
+        <h3>Step 1: Bottom Trigger</h3>
+        <p>Quando este step cruza o <strong>BOTTOM TRIGGER (90%)</strong>, o sticky-thing fica <span style="color: #96ceb4;">verde</span>. Este é o primeiro trigger que cruzamos quando fazemos scroll.</p>
+      </div>
+
+      <div class="step" data-step="2">
+        <h3>Step 2: Center Trigger</h3>
+        <p>Agora o step está no <strong>CENTER TRIGGER (50%)</strong>, o sticky-thing fica <span style="color: #4ecdc4;">azul</span>. Este é o trigger que o Scrollama usa por padrão.</p>
+      </div>
+
+      <div class="step" data-step="3">
+        <h3>Step 3: Top Trigger</h3>
+        <p>Finalmente, quando o step passa pelo <strong>TOP TRIGGER (10%)</strong>, o sticky-thing fica <span style="color: #ff6b6b;">vermelho</span>. O elemento passou completamente pela tela.</p>
+      </div>
+    </div>
+
+    <div class="code-snippet">
+      <div class="code-title">JavaScript - Estados por Trigger (Ordem Correta)</div>
+      <pre>function detectLineCrossings() {
+  steps.forEach((step) => {
+    const rect = step.getBoundingClientRect();
+    const stepNumber = step.dataset.step;
+    
+    const crossingTop = rect.bottom <= topTrigger;       // Elemento passou completamente
+    const crossingCenter = rect.top <= centerTrigger && rect.bottom >= centerTrigger; // Elemento no centro
+    const crossingBottom = rect.bottom <= bottomTrigger; // Elemento passou da linha de 90%
+    
+    // ORDEM CRONOLÓGICA DO SCROLL:
+    
+    // 1º - BOTTOM TRIGGER (primeiro que encontramos)
+    if (crossingBottom && step.dataset.loggedBottom !== 'true') {
+      stickyThing.style.background = 'linear-gradient(45deg, #96ceb4, #74b9ff)';
+      stickyThing.style.transform = 'scale(1.05)';
+      step.dataset.loggedBottom = 'true';
+    }
+    
+    // 2º - CENTER TRIGGER (meio da tela)
+    if (crossingCenter && step.dataset.loggedCenter !== 'true') {
+      stickyThing.style.background = 'linear-gradient(45deg, #4ecdc4, #45b7d1)';
+      stickyThing.style.transform = 'scale(1.1)';
+      step.dataset.loggedCenter = 'true';
+    }
+    
+    // 3º - TOP TRIGGER (elemento saiu da tela)
+    if (crossingTop && step.dataset.loggedTop !== 'true') {
+      stickyThing.style.background = 'linear-gradient(45deg, #ff6b6b, #e74c3c)';
+      stickyThing.style.transform = 'scale(0.9) rotate(5deg)';
+      step.dataset.loggedTop = 'true';
+    }
+  });
+}</pre>
+    </div>
+  </section>
+
+  <!-- Exemplo 2: Animação baseada em Progresso -->
+  <section id="progress-animation" class="example-section example-2">
+    <div class="section-header">
+      <h2>2. Animações Baseadas em Progresso</h2>
+      <p>Elementos que se movem suavemente baseados no progresso do scroll dentro de cada step. Perfeito para animações fluidas.</p>
+    </div>
+
+    <div class="sticky-demo">
+      <div class="sticky-thing" id="sticky-2">
+        <div class="sticky-text" id="text-2">🎯</div>
+        <div class="progress-element" id="circle-1"></div>
+        <div class="progress-element" id="circle-2"></div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill-2"></div>
+        </div>
+      </div>
+
+      <div class="step" data-step="4">
+        <h3>Step 4: Movimento Circular</h3>
+        <p>Este step faz os elementos se moverem em círculo conforme você faz scroll. O progresso vai de 0% a 100% durante todo o step, criando uma animação suave.</p>
+      </div>
+
+      <div class="step" data-step="5">
+        <h3>Step 5: Rotação e Escala</h3>
+        <p>Aqui o elemento central rotaciona e muda de escala baseado no progresso. A barra na parte inferior mostra visualmente o progresso do scroll.</p>
+      </div>
+
+      <div class="step" data-step="6">
+        <h3>Step 6: Mudança de Cor</h3>
+        <p>Neste step, as cores mudam gradualmente usando HSL e o progresso para criar um efeito de rainbow suave e contínuo.</p>
+      </div>
+    </div>
+
+    <div class="code-snippet">
+      <div class="code-title">JavaScript - Animação por Progresso</div>
+      <pre>function handleStepProgress(response) {
+  const progress = response.progress; // 0 a 1
+  const stepNumber = parseInt(response.element.dataset.step);
+  
+  if (stepNumber === 4) {
+    // Movimento circular
+    const angle = progress * Math.PI * 2;
+    const radius = 150;
+    
+    const x1 = Math.cos(angle) * radius;
+    const y1 = Math.sin(angle) * radius;
+    const x2 = Math.cos(angle + Math.PI) * radius;
+    const y2 = Math.sin(angle + Math.PI) * radius;
+    
+    circle1.style.transform = `translate(${x1}px, ${y1}px)`;
+    circle2.style.transform = `translate(${x2}px, ${y2}px)`;
+  }
+  
+  if (stepNumber === 5) {
+    // Rotação e escala
+    const rotation = progress * 360;
+    const scale = 1 + (progress * 0.5);
+    text.style.transform = `rotate(${rotation}deg) scale(${scale})`;
+  }
+  
+  if (stepNumber === 6) {
+    // Mudança de cor
+    const hue = progress * 360;
+    stickyThing.style.background = `hsl(${hue}, 70%, 50%)`;
+  }
+  
+  // Atualiza barra de progresso
+  progressBar.style.width = `${progress * 100}%`;
+}</pre>
+    </div>
+  </section>
+
+  <!-- Exemplo 3: Controle de Imagens -->
+  <section id="image-control" class="example-section example-3">
+    <div class="section-header">
+      <h2>3. Controle de Imagens e Elementos</h2>
+      <p>Como mostrar/esconder e animar imagens baseado nos triggers e progresso. Similar ao seu projeto com as imagens do Desmond Morris.</p>
+    </div>
+
+    <div class="sticky-demo">
+      <div class="sticky-thing" id="sticky-3">
+        <div class="sticky-text" id="text-3">📚</div>
+        <div class="img-container img-1" id="img-1"></div>
+        <div class="img-container img-2" id="img-2"></div>
+        <div class="img-container img-3" id="img-3"></div>
+      </div>
+
+      <div class="step" data-step="7">
+        <h3>Step 7: Primeira Imagem</h3>
+        <p>Quando este step está ativo, a primeira imagem aparece com fade e movimento suave. Similar às suas imagens que entram de cima e de baixo.</p>
+      </div>
+
+      <div class="step" data-step="8">
+        <h3>Step 8: Segunda Imagem</h3>
+        <p>A segunda imagem substitui a primeira, criando uma narrativa visual. Cada step pode ter seu próprio conjunto de elementos visuais.</p>
+      </div>
+
+      <div class="step" data-step="9">
+        <h3>Step 9: Todas as Imagens</h3>
+        <p>No final, todas as imagens aparecem juntas, criando uma composição final. O progresso dentro do step controla a opacidade e posição.</p>
+      </div>
+    </div>
+
+    <div class="code-snippet">
+      <div class="code-title">JavaScript - Controle de Imagens</div>
+      <pre>function handleStepEnter(response) {
+  const stepNumber = parseInt(response.element.dataset.step);
+  
+  // Esconde todas as imagens primeiro
+  document.querySelectorAll('.img-container').forEach(img => {
+    img.style.opacity = '0';
+    img.style.transform = 'translateY(50px)';
+  });
+  
+  // Mostra imagens específicas por step
+  if (stepNumber === 7) {
+    showImage('img-1');
+  } else if (stepNumber === 8) {
+    showImage('img-2');
+  } else if (stepNumber === 9) {
+    showAllImages();
+  }
+}
+
+function showImage(imageId) {
+  const img = document.getElementById(imageId);
+  img.style.opacity = '1';
+  img.style.transform = 'translateY(0px) scale(1)';
+}
+
+function animateImagesProgress(progress, stepNumber) {
+  if (stepNumber === 7) {
+    // Animação de entrada suave
+    const img = document.getElementById('img-1');
+    const translateY = -50 + (progress * 50);
+    const opacity = Math.min(progress * 2, 1);
+    
+    img.style.transform = `translateY(${translateY}px)`;
+    img.style.opacity = opacity;
+  }
+}</pre>
+    </div>
+  </section>
+
+  <!-- Exemplo 4: Efeitos Combinados - IMPLEMENTADO -->
+  <section id="combined-effects" class="example-section example-4">
+    <div class="section-header">
+      <h2>4. Efeitos Combinados</h2>
+      <p>Combinando triggers + progresso + múltiplos elementos para criar experiências complexas e envolventes. Este exemplo usa TUDO!</p>
+    </div>
+
+    <div class="sticky-demo">
+      <div class="sticky-thing" id="sticky-4">
+        <div class="sticky-text" id="text-4">🎨</div>
+        <!-- Elementos para animação combinada -->
+        <div class="combined-element" id="combined-circle-1"></div>
+        <div class="combined-element" id="combined-circle-2"></div>
+        <div class="combined-element" id="combined-circle-3"></div>
+        <div class="combined-bar" id="combined-progress"></div>
+      </div>
+
+      <div class="step" data-step="10">
+        <h3>Step 10: Início da Jornada</h3>
+        <p>Este step demonstra como combinar <strong>triggers</strong> (mudanças de estado) com <strong>progresso</strong> (animações suaves). Observe como o fundo muda nos triggers e os elementos se movem com o progresso.</p>
+      </div>
+
+      <div class="step" data-step="11">
+        <h3>Step 11: Desenvolvimento</h3>
+        <p>Agora vemos como usar <strong>múltiplos elementos</strong> reagindo tanto aos triggers quanto ao progresso interno do step. Cada elemento tem sua própria animação baseada no progresso de 0% a 100%.</p>
+      </div>
+
+      <div class="step" data-step="12">
+        <h3>Step 12: Conclusão Épica</h3>
+        <p>O gran finale! Aqui combinamos <strong>todas as técnicas</strong>: mudança de cores por trigger, rotação por progresso, elementos aparecendo e desaparecendo. É assim que você cria narrativas visuais impactantes!</p>
+      </div>
+    </div>
+
+    <div class="code-snippet">
+      <div class="code-title">JavaScript - Efeitos Combinados Completos</div>
+      <pre>// Triggers controlam ESTADOS GERAIS
+function detectLineCrossings() {
+  if (stepNumber >= 10 && stepNumber <= 12) {
+    const sticky4 = document.getElementById('sticky-4');
+    
+    if (crossingBottom && step.dataset.loggedBottom !== 'true') {
+      // Estado 1: Entrada - fundo azul
+      sticky4.style.background = 'radial-gradient(circle, #4ecdc4, #45b7d1)';
+      sticky4.style.borderColor = '#4ecdc4';
+    }
+    
+    if (crossingCenter && step.dataset.loggedCenter !== 'true') {
+      // Estado 2: Centro - fundo roxo
+      sticky4.style.background = 'radial-gradient(circle, #9b59b6, #8e44ad)';
+      sticky4.style.borderColor = '#9b59b6';
+    }
+    
+    if (crossingTop && step.dataset.loggedTop !== 'true') {
+      // Estado 3: Saída - fundo dourado
+      sticky4.style.background = 'radial-gradient(circle, #f39c12, #e67e22)';
+      sticky4.style.borderColor = '#f39c12';
+    }
+  }
+}
+
+// Progresso controla ANIMAÇÕES SUAVES
+function handleStepProgress(response) {
+  if (stepNumber === 10) {
+    animateCombinedStep10(progress);
+  } else if (stepNumber === 11) {
+    animateCombinedStep11(progress);
+  } else if (stepNumber === 12) {
+    animateCombinedStep12(progress);
+  }
+}
+
+function animateCombinedStep10(progress) {
+  const text = document.getElementById('text-4');
+  const circle1 = document.getElementById('combined-circle-1');
+  
+  // Texto rota e muda de escala
+  text.style.transform = `rotate(${progress * 180}deg) scale(${1 + progress * 0.3})`;
+  
+  // Círculo aparece gradualmente
+  circle1.style.opacity = progress;
+  circle1.style.transform = `scale(${progress}) translateY(${-100 + progress * 100}px)`;
+}
+
+function animateCombinedStep11(progress) {
+  const text = document.getElementById('text-4');
+  const circle1 = document.getElementById('combined-circle-1');
+  const circle2 = document.getElementById('combined-circle-2');
+  
+  // Texto muda conforme progresso
+  if (progress < 0.33) {
+    text.textContent = '🚀';
+  } else if (progress < 0.66) {
+    text.textContent = '⭐';
+  } else {
+    text.textContent = '✨';
+  }
+  
+  // Dois círculos se movem em órbita
+  const angle = progress * Math.PI * 2;
+  const radius = 120;
+  
+  const x1 = Math.cos(angle) * radius;
+  const y1 = Math.sin(angle) * radius;
+  const x2 = Math.cos(angle + Math.PI) * radius;
+  const y2 = Math.sin(angle + Math.PI) * radius;
+  
+  circle1.style.transform = `translate(${x1}px, ${y1}px)`;
+  circle2.style.transform = `translate(${x2}px, ${y2}px)`;
+}
+
+function animateCombinedStep12(progress) {
+  const text = document.getElementById('text-4');
+  const circle1 = document.getElementById('combined-circle-1');
+  const circle2 = document.getElementById('combined-circle-2');
+  const circle3 = document.getElementById('combined-circle-3');
+  
+  // Texto final com múltiplos efeitos
+  const hue = progress * 360;
+  text.style.color = `hsl(${hue}, 70%, 60%)`;
+  text.style.transform = `rotate(${progress * 720}deg) scale(${1 + progress * 0.5})`;
+  text.textContent = '🎭';
+  text.style.textShadow = `0 0 ${progress * 20}px hsl(${hue}, 70%, 60%)`;
+  
+  // Todos os círculos fazem animação complexa
+  const circles = [circle1, circle2, circle3];
+  circles.forEach((circle, index) => {
+    if (circle) {
+      const delay = index * 0.1;
+      const adjustedProgress = Math.max(0, Math.min(1, (progress - delay) / (1 - delay)));
+      
+      if (adjustedProgress > 0) {
+        const angle = adjustedProgress * Math.PI * 4 + (index * Math.PI / 2);
+        const radius = 80 + (index * 20);
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
+        
+        circle.style.transform = `translate(${x}px, ${y}px) scale(${adjustedProgress})`;
+        circle.style.opacity = adjustedProgress;
+        
+        // Muda cor de cada círculo
+        const hue = (progress * 360 + index * 120) % 360;
+        circle.style.background = `hsl(${hue}, 70%, 60%)`;
+      }
+    }
+  });
+}
+
+// NOVAS FUNÇÕES PARA O EXEMPLO 4 - IMPLEMENTADAS
+function animateCombinedStep10(progress) {
+  const text = document.getElementById('text-4');
+  const circle1 = document.getElementById('combined-circle-1');
+  const progressBar = document.getElementById('combined-progress');
+  
+  if (text) {
+    // Texto rota e muda de escala
+    const rotation = progress * 180;
+    const scale = 1 + (progress * 0.3);
+    text.style.transform = `rotate(${rotation}deg) scale(${scale})`;
+    text.textContent = '🎨';
+  }
+  
+  if (circle1) {
+    // Círculo aparece gradualmente de cima
+    circle1.style.opacity = progress;
+    circle1.style.transform = `scale(${progress}) translateY(${-100 + progress * 100}px)`;
+  }
+  
+  if (progressBar) {
+    progressBar.style.width = `${progress * 100}%`;
+  }
+}
+
+function animateCombinedStep11(progress) {
+  const text = document.getElementById('text-4');
+  const circle1 = document.getElementById('combined-circle-1');
+  const circle2 = document.getElementById('combined-circle-2');
+  const progressBar = document.getElementById('combined-progress');
+  
+  if (text) {
+    // Texto muda conforme progresso
+    if (progress < 0.33) {
+      text.textContent = '🚀';
+    } else if (progress < 0.66) {
+      text.textContent = '⭐';
+    } else {
+      text.textContent = '✨';
+    }
+    
+    // Efeito de pulsação
+    const scale = 1 + Math.sin(progress * Math.PI * 4) * 0.2;
+    text.style.transform = `scale(${scale})`;
+  }
+  
+  if (circle1 && circle2) {
+    // Dois círculos se movem em órbita
+    const angle = progress * Math.PI * 2;
+    const radius = 120;
+    
+    const x1 = Math.cos(angle) * radius;
+    const y1 = Math.sin(angle) * radius;
+    const x2 = Math.cos(angle + Math.PI) * radius;
+    const y2 = Math.sin(angle + Math.PI) * radius;
+    
+    circle1.style.transform = `translate(${x1}px, ${y1}px)`;
+    circle2.style.transform = `translate(${x2}px, ${y2}px)`;
+    circle1.style.opacity = '1';
+    circle2.style.opacity = '1';
+  }
+  
+  if (progressBar) {
+    progressBar.style.width = `${progress * 100}%`;
+  }
+}
+
+function animateCombinedStep12(progress) {
+  const text = document.getElementById('text-4');
+  const circle1 = document.getElementById('combined-circle-1');
+  const circle2 = document.getElementById('combined-circle-2');
+  const circle3 = document.getElementById('combined-circle-3');
+  const progressBar = document.getElementById('combined-progress');
+  
+  if (text) {
+    // Texto final com múltiplos efeitos
+    const hue = progress * 360;
+    text.style.color = `hsl(${hue}, 70%, 60%)`;
+    text.style.transform = `rotate(${progress * 720}deg) scale(${1 + progress * 0.5})`;
+    text.textContent = '🎭';
+    text.style.textShadow = `0 0 ${progress * 20}px hsl(${hue}, 70%, 60%)`;
+  }
+  
+  // Todos os círculos fazem animação complexa
+  const circles = [circle1, circle2, circle3];
+  circles.forEach((circle, index) => {
+    if (circle) {
+      const delay = index * 0.1;
+      const adjustedProgress = Math.max(0, Math.min(1, (progress - delay) / (1 - delay)));
+      
+      if (adjustedProgress > 0) {
+        const angle = adjustedProgress * Math.PI * 4 + (index * Math.PI / 2);
+        const radius = 80 + (index * 20);
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
+        
+        circle.style.transform = `translate(${x}px, ${y}px) scale(${adjustedProgress})`;
+        circle.style.opacity = adjustedProgress;
+        
+        // Muda cor de cada círculo
+        const hue = (progress * 360 + index * 120) % 360;
+        circle.style.background = `hsl(${hue}, 70%, 60%)`;
+      }
+    }
+  });
+  
+  if (progressBar) {
+    progressBar.style.width = `${progress * 100}%`;
+    const hue = progress * 360;
+    progressBar.style.background = `linear-gradient(90deg, hsl(${hue}, 70%, 60%), hsl(${(hue + 60) % 360}, 70%, 60%))`;
+  }
+}
+
+    function showImage(imageId) {
+      const img = document.getElementById(imageId);
+      if (img) {
+        img.style.opacity = '1';
+        img.style.transform = 'translateY(0px) scale(1)';
+      }
+    }
+
+    function showAllImages() {
+      for (let i = 1; i <= 3; i++) {
+        showImage(`img-${i}`);
+      }
+    }
+
+    function addDebugLabels() {
+      const existingLabels = document.querySelectorAll('.debug-label');
+      existingLabels.forEach(label => label.remove());
+
+      const debugLabels = [
+        { position: '10%', text: 'TOP TRIGGER', color: '#ff6b6b' },
+        { position: '50%', text: 'CENTER TRIGGER', color: '#4ecdc4' },
+        { position: '90%', text: 'BOTTOM TRIGGER', color: '#45b7d1' }
+      ];
+
+      debugLabels.forEach(label => {
+        const debugElement = document.createElement('div');
+        debugElement.className = 'debug-label';
+        debugElement.innerHTML = label.text;
+        debugElement.style.cssText = `
+          position: fixed;
+          top: ${label.position};
+          right: 10px;
+          background: ${label.color};
+          color: white;
+          padding: 5px 10px;
+          font-size: 12px;
+          font-weight: bold;
+          border-radius: 3px;
+          z-index: 9999;
+          transform: translateY(-50%);
+          pointer-events: none;
+          font-family: monospace;
+        `;
+        document.body.appendChild(debugElement);
+      });
+    }
+
+    function updateDebugInfo(data) {
+      document.getElementById('debug-step').textContent = data.step;
+      document.getElementById('debug-progress').textContent = `${data.progress}%`;
+    }
+
+    function updateDebugTriggers(top, center, bottom) {
+      document.getElementById('debug-top').textContent = top ? '🔴' : '⭕';
+      document.getElementById('debug-center').textContent = center ? '🟡' : '⭕';
+      document.getElementById('debug-bottom').textContent = bottom ? '🔵' : '⭕';
+    }
+
+    // Smooth scrolling para navegação
+    document.querySelectorAll('.nav-menu a').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
+    // Inicializa
+    init();
+  </script>
+
+  <!-- Debug Panel -->
+<div class="debug-panel">
+  <h4>🎯 Debug Info</h4>
+  <div>Current Step: <span id="debug-step">-</span></div>
+  <div>Progress: <span id="debug-progress">-</span></div>
+  <div>Top Trigger: <span id="debug-top">⭕</span></div>
+  <div>Center Trigger: <span id="debug-center">⭕</span></div>
+  <div>Bottom Trigger: <span id="debug-bottom">⭕</span></div>
+</div>
+
+<script src="https://unpkg.com/intersection-observer@0.5.1/intersection-observer.js"></script>
+<script src="https://unpkg.com/scrollama"></script>
+
+<script>
+const scroller = scrollama();
+
+function init() {
+  scroller
+    .setup({
+      step: '.step',
+      offset: 0.5,
+      progress: true,
+      debug: false
+    })
+    .onStepEnter(handleStepEnter)
+    .onStepExit(handleStepExit)
+    .onStepProgress(handleStepProgress);
+
+  window.addEventListener("resize", () => {
+    scroller.resize();
+    addDebugLabels();
+  });
+  
+  window.addEventListener("scroll", detectLineCrossings);
+  
+  addDebugLabels();
+  detectLineCrossings();
+}
+
+function handleStepEnter(response) {
+  const stepData = response.element.dataset.step;
+  const stepNumber = parseInt(stepData);
+  
+  // Remove estados ativos anteriores
+  document.querySelectorAll('.step').forEach(step => {
+    step.classList.remove('is-active');
+  });
+  
+  // Ativa step atual
+  response.element.classList.add('is-active');
+  
+  // Controle de imagens por step (Exemplo 3)
+  const allImages = document.querySelectorAll('.img-container');
+  allImages.forEach(img => {
+    img.style.opacity = '0';
+    img.style.transform = 'translateY(50px)';
+  });
+  
+  if (stepNumber === 7) {
+    showImage('img-1');
+  } else if (stepNumber === 8) {
+    showImage('img-2');
+  } else if (stepNumber === 9) {
+    showAllImages();
+  }
+  
+  updateDebugInfo({ step: stepData, progress: 0 });
+}
+
+function handleStepExit(response) {
+  response.element.classList.remove('is-active');
+}
+
+function handleStepProgress(response) {
+  const progress = response.progress;
+  const stepData = response.element.dataset.step;
+  const stepNumber = parseInt(stepData);
+  
+  // Exemplo 2: Animações por progresso
+  if (stepNumber === 4) {
+    animateCircularMotion(progress);
+  } else if (stepNumber === 5) {
+    animateRotationAndScale(progress);
+  } else if (stepNumber === 6) {
+    animateColorChange(progress);
+  } else if (stepNumber === 7) {
+    animateImageProgress(progress, 1);
+  } else if (stepNumber === 8) {
+    animateImageProgress(progress, 2);
+  } else if (stepNumber === 9) {
+    animateImageProgress(progress, 3);
+  }
+  
+  // Exemplo 4: Efeitos combinados
+  else if (stepNumber === 10) {
+    animateCombinedStep10(progress);
+  } else if (stepNumber === 11) {
+    animateCombinedStep11(progress);
+  } else if (stepNumber === 12) {
+    animateCombinedStep12(progress);
+  }
+  
+  // Atualiza barra de progresso
+  const progressFill = document.getElementById('progress-fill-2');
+  if (progressFill) {
+    progressFill.style.width = `${progress * 100}%`;
+  }
+  
+  updateDebugInfo({ 
+    step: stepData, 
+    progress: Math.round(progress * 100)
+  });
+}
+
+function detectLineCrossings() {
+  const steps = document.querySelectorAll('.step');
+  const windowHeight = window.innerHeight;
+  
+  const topTrigger = windowHeight * 0.1;
+  const centerTrigger = windowHeight * 0.5;
+  const bottomTrigger = windowHeight * 0.9;
+  
+  let currentStep = null;
+  let currentTrigger = null;
+  
+  steps.forEach((step) => {
+    const rect = step.getBoundingClientRect();
+    const stepNumber = parseInt(step.dataset.step);
+    
+    const crossingTop = rect.bottom <= topTrigger;
+    const crossingCenter = rect.top <= centerTrigger && rect.bottom >= centerTrigger;
+    const crossingBottom = rect.bottom <= bottomTrigger;
+    
+    // Determina qual step está mais ativo
+    if (crossingCenter) {
+      currentStep = stepNumber;
+      currentTrigger = 'center';
+    } else if (crossingTop) {
+      currentStep = stepNumber;
+      currentTrigger = 'top';
+    } else if (crossingBottom) {
+      currentStep = stepNumber;
+      currentTrigger = 'bottom';
+    }
+  });
+  
+  // EXEMPLO 1: Estados baseados em triggers (steps 1-3)
+  if (currentStep && currentStep <= 3) {
+    const sticky1 = document.getElementById('sticky-1');
+    const text1 = document.getElementById('text-1');
+    
+    if (currentTrigger === 'top') {
+      // TOP - Vermelho (elemento passou completamente)
+      sticky1.style.background = 'linear-gradient(45deg, #ff6b6b, #e74c3c)';
+      sticky1.style.transform = 'scale(0.9) rotate(5deg)';
+      text1.textContent = '🔴';
+    } else if (currentTrigger === 'center') {
+      // CENTER - Azul (elemento no centro)
+      sticky1.style.background = 'linear-gradient(45deg, #4ecdc4, #45b7d1)';
+      sticky1.style.transform = 'scale(1.1)';
+      text1.textContent = '🟡';
+    } else if (currentTrigger === 'bottom') {
+      // BOTTOM - Verde (elemento chegou na linha de 90%)
+      sticky1.style.background = 'linear-gradient(45deg, #96ceb4, #74b9ff)';
+      sticky1.style.transform = 'scale(1.05)';
+      text1.textContent = '🟢';
+    } else {
+      // Estado padrão
+      sticky1.style.background = 'linear-gradient(135deg, #2E227C, #1A0D72)';
+      sticky1.style.transform = 'scale(1)';
+      text1.textContent = '👁️';
+    }
+  }
+  
+  // EXEMPLO 4: Efeitos combinados (steps 10-12)
+  if (currentStep && currentStep >= 10 && currentStep <= 12) {
+    const sticky4 = document.getElementById('sticky-4');
+    
+    if (currentTrigger === 'top') {
+      // TOP - Dourado
+      sticky4.style.background = 'radial-gradient(circle, #f39c12, #e67e22)';
+      sticky4.style.borderColor = '#f39c12';
+    } else if (currentTrigger === 'center') {
+      // CENTER - Roxo
+      sticky4.style.background = 'radial-gradient(circle, #9b59b6, #8e44ad)';
+      sticky4.style.borderColor = '#9b59b6';
+    } else if (currentTrigger === 'bottom') {
+      // BOTTOM - Azul
+      sticky4.style.background = 'radial-gradient(circle, #4ecdc4, #45b7d1)';
+      sticky4.style.borderColor = '#4ecdc4';
+    } else {
+      // Estado padrão
+      sticky4.style.background = 'linear-gradient(135deg, #2E227C, #1A0D72)';
+      sticky4.style.borderColor = 'rgba(248, 244, 232, 0.2)';
+    }
+  }
+  
+  // Atualiza debug (usa o primeiro step para referência)
+  const firstStep = steps[0];
+  if (firstStep) {
+    const rect = firstStep.getBoundingClientRect();
+    const crossingTop = rect.bottom <= topTrigger;
+    const crossingCenter = rect.top <= centerTrigger && rect.bottom >= centerTrigger;
+    const crossingBottom = rect.bottom <= bottomTrigger;
+    updateDebugTriggers(crossingTop, crossingCenter, crossingBottom);
+  }
+}
+
+// Funções de animação específicas
+function animateCircularMotion(progress) {
+  const circle1 = document.getElementById('circle-1');
+  const circle2 = document.getElementById('circle-2');
+  
+  if (circle1 && circle2) {
+    const angle = progress * Math.PI * 2;
+    const radius = 150;
+    
+    const x1 = Math.cos(angle) * radius;
+    const y1 = Math.sin(angle) * radius;
+    const x2 = Math.cos(angle + Math.PI) * radius;
+    const y2 = Math.sin(angle + Math.PI) * radius;
+    
+    circle1.style.transform = `translate(${x1}px, ${y1}px)`;
+    circle2.style.transform = `translate(${x2}px, ${y2}px)`;
+    circle1.style.opacity = '1';
+    circle2.style.opacity = '1';
+  }
+}
+
+function animateRotationAndScale(progress) {
+  const text = document.getElementById('text-2');
+  if (text) {
+    const rotation = progress * 360;
+    const scale = 1 + (progress * 0.5);
+    text.style.transform = `rotate(${rotation}deg) scale(${scale})`;
+  }
+}
+
+function animateColorChange(progress) {
+  const sticky2 = document.getElementById('sticky-2');
+  if (sticky2) {
+    const hue = progress * 360;
+    sticky2.style.background = `hsl(${hue}, 70%, 50%)`;
+  }
+}
+
+function animateImageProgress(progress, imageNumber) {
+  const img = document.getElementById(`img-${imageNumber}`);
+  if (img) {
+    const translateY = -50 + (progress * 50);
+    const opacity = Math.min(progress * 2, 1);
+    const scale = 0.8 + (progress * 0.2);
+    
+    img.style.transform = `translateY(${translateY}px) scale(${scale})`;
+    img.style.opacity = opacity;
+  }
+}
+
+// Funções para o exemplo 4 - Efeitos combinados
+function animateCombinedStep10(progress) {
+  const text = document.getElementById('text-4');
+  const circle1 = document.getElementById('combined-circle-1');
+  const progressBar = document.getElementById('combined-progress');
+  
+  if (text) {
+    const rotation = progress * 180;
+    const scale = 1 + (progress * 0.3);
+    text.style.transform = `rotate(${rotation}deg) scale(${scale})`;
+    text.textContent = '🎨';
+  }
+  
+  if (circle1) {
+    circle1.style.opacity = progress;
+    circle1.style.transform = `scale(${progress}) translateY(${-100 + progress * 100}px)`;
+  }
+  
+  if (progressBar) {
+    progressBar.style.width = `${progress * 100}%`;
+  }
+}
+
+function animateCombinedStep11(progress) {
+  const text = document.getElementById('text-4');
+  const circle1 = document.getElementById('combined-circle-1');
+  const circle2 = document.getElementById('combined-circle-2');
+  const progressBar = document.getElementById('combined-progress');
+  
+  if (text) {
+    // Texto muda conforme progresso
+    if (progress < 0.33) {
+      text.textContent = '🚀';
+    } else if (progress < 0.66) {
+      text.textContent = '⭐';
+    } else {
+      text.textContent = '✨';
+    }
+    
+    // Efeito de pulsação
+    const scale = 1 + Math.sin(progress * Math.PI * 4) * 0.2;
+    text.style.transform = `scale(${scale})`;
+  }
+  
+  if (circle1 && circle2) {
+    // Dois círculos se movem em órbita
+    const angle = progress * Math.PI * 2;
+    const radius = 120;
+    
+    const x1 = Math.cos(angle) * radius;
+    const y1 = Math.sin(angle) * radius;
+    const x2 = Math.cos(angle + Math.PI) * radius;
+    const y2 = Math.sin(angle + Math.PI) * radius;
+    
+    circle1.style.transform = `translate(${x1}px, ${y1}px)`;
+    circle2.style.transform = `translate(${x2}px, ${y2}px)`;
+    circle1.style.opacity = '1';
+    circle2.style.opacity = '1';
+  }
+  
+  if (progressBar) {
+    progressBar.style.width = `${progress * 100}%`;
+  }
+}
+
+function animateCombinedStep12(progress) {
+  const text = document.getElementById('text-4');
+  const circle1 = document.getElementById('combined-circle-1');
+  const circle2 = document.getElementById('combined-circle-2');
+  const circle3 = document.getElementById('combined-circle-3');
+  const progressBar = document.getElementById('combined-progress');
+  
+  if (text) {
+    // Texto final com múltiplos efeitos
+    const hue = progress * 360;
+    text.style.color = `hsl(${hue}, 70%, 60%)`;
+    text.style.transform = `rotate(${progress * 720}deg) scale(${1 + progress * 0.5})`;
+    text.textContent = '🎭';
+    text.style.textShadow = `0 0 ${progress * 20}px hsl(${hue}, 70%, 60%)`;
+  }
+  
+  // Todos os círculos fazem animação complexa
+  const circles = [circle1, circle2, circle3];
+  circles.forEach((circle, index) => {
+    if (circle) {
+      const delay = index * 0.1;
+      const adjustedProgress = Math.max(0, Math.min(1, (progress - delay) / (1 - delay)));
+      
+      if (adjustedProgress > 0) {
+        const angle = adjustedProgress * Math.PI * 4 + (index * Math.PI / 2);
+        const radius = 80 + (index * 20);
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
+        
+        circle.style.transform = `translate(${x}px, ${y}px) scale(${adjustedProgress})`;
+        circle.style.opacity = adjustedProgress;
+        
+        // Muda cor de cada círculo
+        const hue = (progress * 360 + index * 120) % 360;
+        circle.style.background = `hsl(${hue}, 70%, 60%)`;
+      }
+    }
+  });
+  
+  if (progressBar) {
+    progressBar.style.width = `${progress * 100}%`;
+    const hue = progress * 360;
+    progressBar.style.background = `linear-gradient(90deg, hsl(${hue}, 70%, 60%), hsl(${(hue + 60) % 360}, 70%, 60%))`;
+  }
+}
+
+    function showImage(imageId) {
+      const img = document.getElementById(imageId);
+      if (img) {
+        img.style.opacity = '1';
+        img.style.transform = 'translateY(0px) scale(1)';
+      }
+    }
+
+    function showAllImages() {
+      for (let i = 1; i <= 3; i++) {
+        showImage(`img-${i}`);
+      }
+    }
+
+    function addDebugLabels() {
+      const existingLabels = document.querySelectorAll('.debug-label');
+      existingLabels.forEach(label => label.remove());
+
+      const debugLabels = [
+        { position: '10%', text: 'TOP TRIGGER', color: '#ff6b6b' },
+        { position: '50%', text: 'CENTER TRIGGER', color: '#4ecdc4' },
+        { position: '90%', text: 'BOTTOM TRIGGER', color: '#45b7d1' }
+      ];
+
+      debugLabels.forEach(label => {
+        const debugElement = document.createElement('div');
+        debugElement.className = 'debug-label';
+        debugElement.innerHTML = label.text;
+        debugElement.style.cssText = `
+          position: fixed;
+          top: ${label.position};
+          right: 10px;
+          background: ${label.color};
+          color: white;
+          padding: 5px 10px;
+          font-size: 12px;
+          font-weight: bold;
+          border-radius: 3px;
+          z-index: 9999;
+          transform: translateY(-50%);
+          pointer-events: none;
+          font-family: monospace;
+        `;
+        document.body.appendChild(debugElement);
+      });
+    }
+
+    function updateDebugInfo(data) {
+      const debugStep = document.getElementById('debug-step');
+      const debugProgress = document.getElementById('debug-progress');
+      if (debugStep) debugStep.textContent = data.step;
+      if (debugProgress) debugProgress.textContent = `${data.progress}%`;
+    }
+
+    function updateDebugTriggers(top, center, bottom) {
+      const debugTop = document.getElementById('debug-top');
+      const debugCenter = document.getElementById('debug-center');
+      const debugBottom = document.getElementById('debug-bottom');
+      if (debugTop) debugTop.textContent = top ? '🔴' : '⭕';
+      if (debugCenter) debugCenter.textContent = center ? '🟡' : '⭕';
+      if (debugBottom) debugBottom.textContent = bottom ? '🔵' : '⭕';
+    }
+
+    // Smooth scrolling para navegação
+    document.querySelectorAll('.nav-menu a').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
+    // Inicializa
+    init();
+  </script>
+</body>
+</html>
