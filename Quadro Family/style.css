@@ -15,7 +15,9 @@ body {
 #content {
   background-color: #130d0a;
 }
-
+.container-longo{
+  min-height: 200vh;
+}
 .layer {
   background-position: center center;
   background-size: cover;

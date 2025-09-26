@@ -207,43 +207,6 @@
       background-color: #e0d7b9;
     }
 
-    /* Family Layers */
-    #family-layers {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: -1;
-      /* Fica atrás do #scrolly */
-      overflow: hidden;
-    }
-
-    #hero {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-    }
-
-    .layer {
-      position: absolute;
-      top: 0;
-      /* Alinha ao topo */
-      left: 0;
-      /* Alinha à esquerda */
-      width: 100%;
-      /* Garante que ocupa toda a largura */
-      height: 100%;
-      /* Garante que ocupa toda a altura */
-      background-size: cover;
-      /* Ajusta para cobrir toda a tela */
-      background-repeat: no-repeat;
-      /* Evita repetições */
-      background-position: top center;
-      /* Alinha ao topo e centraliza horizontalmente */
-    }
 
     .layer-bg {
       background-image: url('./Quadro Family/Family-layers_0006_Fundo-copy.png');
@@ -310,18 +273,8 @@
           <p> Nascido em 24 de janeiro de 1928, Desmond Morris é um zoólogo britânico e pintor surrealista que se
             notabilizou por analisar o comportamento humano sob uma perspetiva zoológica, ou seja, da mesma forma que
             descreveria os outros animais. </p>
-          <!-- Family Layers -->
-          <div id="family-layers">
-            <div id="hero">
-              <div class="layer layer-bg" data-depth="0.10"></div>
-              <div class="layer layer-1" data-depth="0.20"></div>
-              <div class="layer layer-2" data-depth="0.30"></div>
-              <div class="layer layer-3" data-depth="0.40"></div>
-              <div class="layer layer-4" data-depth="0.50"></div>
-              <div class="layer layer-5" data-depth="0.60"></div>
-              <div class="layer layer-6" data-depth="0.70"></div>
-            </div>
-          </div>
+          <!-- Family Layers aqui -->
+          
         </div>
 
         <div class="step" data-step="3">
@@ -637,6 +590,7 @@
     }
 
     init();
+
   </script>
 </body>
 
